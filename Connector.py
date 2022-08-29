@@ -30,16 +30,19 @@ def get_redirect_url(url: str):
     :return: 重定向后的地址
     """
     # 请求网页
-    response = requests.get(url)
-    log('检测是否发生重定向')
-    if response.url == url:
-        log('登录地址未重定向')
-    else:
-        log(f'登录地址已重定向')
-        log(f'登录地址重定向地址为：{response.url}')
-
-    # 返回重定向后的网址
-    return response.url
+    try:
+        response = requests.get(url)
+        log('检测是否发生重定向')
+        if response.url == url:
+            log('登录地址未重定向')
+        else:
+            log(f'登录地址已重定向')
+            log(f'登录地址重定向地址为：{response.url}')
+        # 返回重定向后的网址
+        return response.url
+    except:
+        log("请求失败")
+        return None
 
 
 def get_connect_status(url: str):
