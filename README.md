@@ -30,6 +30,14 @@ python Connector.py
 python3 Connector.py
 ```
 
+也可以通过login文件运行：给login赋权后，就可以通过更简单的命令来运行了。
+注意，如果环境是python3，那么需要将login里面的命令python改为python3
+
+```shell
+chmod 777 ./login # 赋权
+./login # 启动
+```
+
 ## 保持后台运行
 
 Linux:
@@ -48,3 +56,4 @@ Windows:
 
 - [ ]  后台运行
 - [X]  输入密码不可见
+- [ ] 下线功能
