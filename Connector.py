@@ -6,6 +6,7 @@ from pyquery import PyQuery  # 用于解析数据
 import time  # 用于设置延时
 import getpass  # 用于避免密码的直接输出
 import random
+import platform  # 用于查看系统属于哪个平台
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
 internet_quick_test = True
@@ -66,9 +67,11 @@ def connect_status_test(host_name: str):
     :return: 连接状态：为0时，网络连接正常；为1时，网络连接失败
     """
     log('执行检测连接命令……')
-    # 向指定的地址发送2个指定的 ECHO 数据包（默认值为 4）
-    command = 'ping -n 2 %s' % host_name
-    log('cmd> ' + command)
+    if platform.system() == 'Windows':
+        command = 'ping -n 2 %s' % host_name
+        log('> ' + command)
+    elif platform.system() == 'Linux':
+        command = 'ping -c 2 %s' % host_name
     network_state = subprocess.run(command, stdout=subprocess.PIPE, shell=True).returncode
     if network_state == 0:
         log('执行结果：连接正常')
@@ -203,12 +206,16 @@ def info_input():
 if __name__ == '__main__':
     welcome('1.0')
     info = info_input()
-    if input(log("是否开启账号自动登录（Y/N）：", False)) == 'n':
+    auto_login_input = input(log("是否开启账号自动登录（Y/N）：", False))
+    if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
         auto_login = False
     else:
         auto_login = True
-        if input(log("是否开启快速互联网连通测试（Y/N）：", False)) == 'n':
+        internet_quick_test_input = input(log("是否开启快速互联网连通测试（Y/N）：", False))
+        if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
             internet_quick_test = False
+        else:
+            internet_quick_test = True
     protocol = 'http://'
     login_url = protocol + info['hostname']
     log('网络链路检测......')
