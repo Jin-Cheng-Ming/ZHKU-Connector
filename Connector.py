@@ -4,8 +4,12 @@ import subprocess  # 用于在程序中执行cmd命令
 import datetime  # 用于记录当前时间
 from pyquery import PyQuery  # 用于解析数据
 import time  # 用于设置延时
+import getpass  # 用于避免密码的直接输出
+import random
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
+internet_quick_test = True
+auto_login = True
 
 
 def welcome(version: str):
@@ -81,11 +85,17 @@ def internet_connect_status_test():
     """
     global internet_host_list
     log('检测是否有互联网连接……')
-    for host in internet_host_list:
-        # 连接正常
+    if internet_quick_test:
+        host = random.choice(internet_host_list)
         if connect_status_test(host):
             log('检测互联网连接完毕：互联网连接正常')
             return True
+    else:
+        for host in internet_host_list:
+            # 连接正常
+            if connect_status_test(host):
+                log('检测互联网连接完毕：互联网连接正常')
+                return True
     log('检测互联网连接完毕：无互联网连接')
     return False
 
@@ -179,18 +189,29 @@ def info_input():
 
     :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
     """
-    info = {'hostname': input(log('请输入登录地址： ', False)),
-            'user_id': input(log('请输入账号： ', False)),
-            'password': input(log('请输入密码： ', False))
-            }
+    info = {
+        'hostname': input(log('请输入登录地址： ', False)),
+        'user_id': input(log('请输入账号： ', False)),
+        'password': getpass.getpass(log('请输入密码： ', False))
+    }
+    if 'http' in info['hostname']:
+        log("【test】:     http")
+        info['hostname'] = info['hostname'][info['hostname'].index('://') + 3:]
     return info
 
 
 if __name__ == '__main__':
     welcome('1.0')
     info = info_input()
+    if input(log("是否开启账号自动登录（Y/N）：", False)) == 'n':
+        auto_login = False
+    else:
+        auto_login = True
+        if input(log("是否开启快速互联网连通测试（Y/N）：", False)) == 'n':
+            internet_quick_test = False
     protocol = 'http://'
     login_url = protocol + info['hostname']
+    log('网络链路检测......')
     login_connect = login_address_connect_status_test(login_url)
     internet_connect = internet_connect_status_test()
     # 后台持续监测
@@ -206,19 +227,23 @@ if __name__ == '__main__':
         log('登录地址访问正常，检测账号能否正常登录……')
         login_status = login(info['user_id'], info['password'], login_url)
         if login_status:
-            log('账号登录正常，该账号将用于自动登录')
-            log('1分钟后持续将持续监测互联网连接状态')
-            time.sleep(60)
-            while True:
-                internet_connect = internet_connect_status_test()
-                # 互联网连接异常
-                if not internet_connect:
-                    log('互联网无法连接，执行自动登录操作')
-                    log('正在登录中……')
-                    # 执行登录校园网方法 获取登录状态
-                    login(info['user_id'], info['password'], login_url)
-                # 间隔15秒执行监测
-                time.sleep(15)
+            if auto_login:
+                log('账号登录正常，该账号将用于自动登录')
+                log('1分钟后持续将持续监测互联网连接状态')
+                time.sleep(60)
+                while True:
+                    internet_connect = internet_connect_status_test()
+                    # 互联网连接异常
+                    if not internet_connect:
+                        log('互联网无法连接，执行自动登录操作')
+                        log('正在登录中……')
+                        # 执行登录校园网方法 获取登录状态
+                        login(info['user_id'], info['password'], login_url)
+                    # 间隔15秒执行监测
+                    time.sleep(15)
+            else:
+                log('账号已登录')
+                exit(0)
         else:
             log('账号登录失败，检查账号信息是否正确，再试试？')
             exit(0)
