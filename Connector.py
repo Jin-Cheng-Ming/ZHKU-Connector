@@ -7,10 +7,12 @@ import time  # 用于设置延时
 import getpass  # 用于避免密码的直接输出
 import random
 import platform  # 用于查看系统属于哪个平台
+from progress.spinner import Spinner
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
 internet_quick_test = True
 auto_login = True
+log_info = True
 
 
 def welcome(version: str):
@@ -24,7 +26,7 @@ def welcome(version: str):
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::              version {version}              
+    ::ZHKU connector::            [version {version}]              
     ''')
 
 
@@ -66,18 +68,18 @@ def connect_status_test(host_name: str):
     :param host_name: 主机名
     :return: 连接状态：为0时，网络连接正常；为1时，网络连接失败
     """
-    log('执行检测连接命令……')
+    command = ''
+    log('执行检测连接命令……', not log_info)
     if platform.system() == 'Windows':
         command = 'ping -n 2 %s' % host_name
-        log('> ' + command)
     elif platform.system() == 'Linux':
         command = 'ping -c 2 %s' % host_name
     network_state = subprocess.run(command, stdout=subprocess.PIPE, shell=True).returncode
     if network_state == 0:
-        log('执行结果：连接正常')
+        log('执行结果：连接正常', not log_info)
         return True
     else:
-        log('执行结果：连接失败')
+        log('执行结果：连接失败', not log_info)
         return False
 
 
@@ -87,19 +89,19 @@ def internet_connect_status_test():
     :return: 是否有互联网连接
     """
     global internet_host_list
-    log('检测是否有互联网连接……')
+    log('检测是否有互联网连接……', not log_info)
     if internet_quick_test:
         host = random.choice(internet_host_list)
         if connect_status_test(host):
-            log('检测互联网连接完毕：互联网连接正常')
+            log('检测互联网连接完毕：互联网连接正常', not log_info)
             return True
     else:
         for host in internet_host_list:
             # 连接正常
             if connect_status_test(host):
-                log('检测互联网连接完毕：互联网连接正常')
+                log('检测互联网连接完毕：互联网连接正常', not log_info)
                 return True
-    log('检测互联网连接完毕：无互联网连接')
+    log('检测互联网连接完毕：无互联网连接', not log_info)
     return False
 
 
@@ -198,7 +200,6 @@ def info_input():
         'password': getpass.getpass(log('请输入密码： ', False))
     }
     if 'http' in info['hostname']:
-        log("【test】:     http")
         info['hostname'] = info['hostname'][info['hostname'].index('://') + 3:]
     return info
 
@@ -216,11 +217,19 @@ if __name__ == '__main__':
             internet_quick_test = False
         else:
             internet_quick_test = True
+    log_error_input = input(log("是否仅输出网络异常自动登录连接日志（Y/N）：", False))
+    if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
+        log_info = False
+    else:
+        log_info = True
     protocol = 'http://'
     login_url = protocol + info['hostname']
+    log_temp = log_info
+    log_info = True
     log('网络链路检测......')
     login_connect = login_address_connect_status_test(login_url)
     internet_connect = internet_connect_status_test()
+    log_info = log_temp
     # 后台持续监测
     log(f'网络链路检测完毕：登录地址{"访问正常" if login_connect else "无法连接"}，互联网{"访问正常" if internet_connect else "无法连接"}')
     # 设置账号登录状态
@@ -236,18 +245,19 @@ if __name__ == '__main__':
         if login_status:
             if auto_login:
                 log('账号登录正常，该账号将用于自动登录')
-                log('1分钟后持续将持续监测互联网连接状态')
-                time.sleep(60)
+                input(log("持续监测互联网连接状态，请按任意键确认", False))
+                spinner = Spinner(log('持续监测中 ', False))
                 while True:
                     internet_connect = internet_connect_status_test()
                     # 互联网连接异常
                     if not internet_connect:
+                        print('\n')
                         log('互联网无法连接，执行自动登录操作')
-                        log('正在登录中……')
                         # 执行登录校园网方法 获取登录状态
                         login(info['user_id'], info['password'], login_url)
                     # 间隔15秒执行监测
-                    time.sleep(15)
+                    spinner.next()
+                    time.sleep(3)
             else:
                 log('账号已登录')
                 exit(0)
