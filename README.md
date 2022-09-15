@@ -8,6 +8,7 @@
 ```shell
 pip install requests
 pip install pyquery
+pip install progress
 ```
 
 或者根据依赖清单安装，运行如下命令
@@ -40,13 +41,22 @@ chmod 777 ./login # 赋权
 
 ## 保持后台运行
 
-Linux:
+### Linux
+在Linux操作系统中，如果有内置Screen软件的话，使用如下命令创建screen终端
 
 ```shell
-
+screen
 ```
 
-Windows:
+创建screen终端之后就可以再这个界面里面像上面一样的操作运行自动连接的程序。
+当关闭shell终端之后，自动连接程序后台仍然保持运行。
+通过如下命令来重新连接screen
+
+```shell
+screen -r
+```
+
+### Windows
 
 ```shell
 
@@ -54,6 +64,6 @@ Windows:
 
 ## TODO
 
-- [ ]  后台运行
-- [X]  输入密码不可见
+- [X] 后台运行
+- [X] 输入密码不可见
 - [ ] 下线功能
