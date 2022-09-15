@@ -7,12 +7,12 @@ import time  # 用于设置延时
 import getpass  # 用于避免密码的直接输出
 import random
 import platform  # 用于查看系统属于哪个平台
-from progress.spinner import Spinner
+from progress.spinner import Spinner  # 用于说明检测状态
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
 internet_quick_test = True
 auto_login = True
-log_info = True
+log_info = False
 
 
 def welcome(version: str):
@@ -69,17 +69,17 @@ def connect_status_test(host_name: str):
     :return: 连接状态：为0时，网络连接正常；为1时，网络连接失败
     """
     command = ''
-    log('执行检测连接命令……', not log_info)
+    log('执行检测连接命令……', log_info)
     if platform.system() == 'Windows':
         command = 'ping -n 2 %s' % host_name
     elif platform.system() == 'Linux':
         command = 'ping -c 2 %s' % host_name
     network_state = subprocess.run(command, stdout=subprocess.PIPE, shell=True).returncode
     if network_state == 0:
-        log('执行结果：连接正常', not log_info)
+        log('执行结果：连接正常', log_info)
         return True
     else:
-        log('执行结果：连接失败', not log_info)
+        log('执行结果：连接失败', log_info)
         return False
 
 
@@ -89,19 +89,19 @@ def internet_connect_status_test():
     :return: 是否有互联网连接
     """
     global internet_host_list
-    log('检测是否有互联网连接……', not log_info)
+    log('检测是否有互联网连接……', log_info)
     if internet_quick_test:
         host = random.choice(internet_host_list)
         if connect_status_test(host):
-            log('检测互联网连接完毕：互联网连接正常', not log_info)
+            log('检测互联网连接完毕：互联网连接正常', log_info)
             return True
     else:
         for host in internet_host_list:
             # 连接正常
             if connect_status_test(host):
-                log('检测互联网连接完毕：互联网连接正常', not log_info)
+                log('检测互联网连接完毕：互联网连接正常', log_info)
                 return True
-    log('检测互联网连接完毕：无互联网连接', not log_info)
+    log('检测互联网连接完毕：无互联网连接', log_info)
     return False
 
 
@@ -219,9 +219,9 @@ if __name__ == '__main__':
             internet_quick_test = True
     log_error_input = input(log("是否仅输出网络异常自动登录连接日志（Y/N）：", False))
     if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
-        log_info = False
-    else:
         log_info = True
+    else:
+        log_info = False
     protocol = 'http://'
     login_url = protocol + info['hostname']
     log_temp = log_info
