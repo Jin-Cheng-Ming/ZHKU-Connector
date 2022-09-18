@@ -214,7 +214,7 @@ def exit_with_confirmation():
 
 
 if __name__ == '__main__':
-    welcome('1.0')
+    welcome('1.1')
     info = info_input()
     auto_login_input = input(log("是否开启账号自动登录（Y/N）：", False))
     if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
@@ -246,7 +246,6 @@ if __name__ == '__main__':
     if not login_connect:
         # 登录地址无法连接，提示接入校园网
         log('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
-        exit_with_confirmation()
     else:
         # 登录地址正常访问，检测账号是否可以正常登录，并检测互联网连接
         log('登录地址访问正常，检测账号能否正常登录……')
@@ -269,7 +268,6 @@ if __name__ == '__main__':
                     time.sleep(3)
             else:
                 log('账号已登录')
-                exit_with_confirmation()
         else:
             log('账号登录失败，检查账号信息是否正确，再试试？')
-            exit_with_confirmation()
+    exit_with_confirmation()
