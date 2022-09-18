@@ -205,7 +205,7 @@ def info_input():
     return info
 
 
-def exit_with_confirm():
+def exit_with_confirmation():
     """
     退出程序，退出前暂停一下，按任意键关闭后将关闭程序
     """
@@ -246,7 +246,7 @@ if __name__ == '__main__':
     if not login_connect:
         # 登录地址无法连接，提示接入校园网
         log('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
-        exit_with_confirm()
+        exit_with_confirmation()
     else:
         # 登录地址正常访问，检测账号是否可以正常登录，并检测互联网连接
         log('登录地址访问正常，检测账号能否正常登录……')
@@ -269,7 +269,7 @@ if __name__ == '__main__':
                     time.sleep(3)
             else:
                 log('账号已登录')
-                exit_with_confirm()
+                exit_with_confirmation()
         else:
             log('账号登录失败，检查账号信息是否正确，再试试？')
-            exit_with_confirm()
+            exit_with_confirmation()
