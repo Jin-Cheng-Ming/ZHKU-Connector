@@ -5,9 +5,10 @@ import datetime  # 用于记录当前时间
 from pyquery import PyQuery  # 用于解析数据
 import time  # 用于设置延时
 import getpass  # 用于避免密码的直接输出
-import random
+import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
+import os  # 用于暂停程序
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
 internet_quick_test = True
@@ -204,6 +205,14 @@ def info_input():
     return info
 
 
+def exit_with_confirm():
+    """
+    退出程序，退出前暂停一下，按任意键关闭后将关闭程序
+    """
+    os.system("pause")
+    exit(0)
+
+
 if __name__ == '__main__':
     welcome('1.0')
     info = info_input()
@@ -218,7 +227,7 @@ if __name__ == '__main__':
         else:
             internet_quick_test = True
     log_error_input = input(log("是否仅输出网络异常自动登录连接日志（Y/N）：", False))
-    if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
+    if len(log_error_input) > 0 and any(res in log_error_input for res in ['n', 'N']):
         log_info = True
     else:
         log_info = False
@@ -237,7 +246,7 @@ if __name__ == '__main__':
     if not login_connect:
         # 登录地址无法连接，提示接入校园网
         log('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
-        exit(0)
+        exit_with_confirm()
     else:
         # 登录地址正常访问，检测账号是否可以正常登录，并检测互联网连接
         log('登录地址访问正常，检测账号能否正常登录……')
@@ -260,7 +269,7 @@ if __name__ == '__main__':
                     time.sleep(3)
             else:
                 log('账号已登录')
-                exit(0)
+                exit_with_confirm()
         else:
             log('账号登录失败，检查账号信息是否正确，再试试？')
-            exit(0)
+            exit_with_confirm()
