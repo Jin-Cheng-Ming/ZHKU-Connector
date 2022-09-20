@@ -238,11 +238,10 @@ if __name__ == '__main__':
     logger.log_message(log_status['info'], '网络链路检测......')
     login_connect = login_address_connect_status_test(login_url)
     internet_connect = internet_connect_status_test()
-    set_log_level(log_status_input)
     # 后台持续监测
     logger.log_message(log_status['info'],
-                       '网络链路检测完毕：登录地址{"访问正常" if login_connect else "无法连接"}，'
-                       '互联网{"访问正常" if internet_connect else "无法连接"}')
+                       f'网络链路检测完毕：登录地址{"访问正常" if login_connect else "无法连接"}，'
+                       f'互联网{"访问正常" if internet_connect else "无法连接"}')
     # 设置账号登录状态
     login_status = False
     if not login_connect:
@@ -256,6 +255,7 @@ if __name__ == '__main__':
             if auto_login:
                 logger.log_message(log_status['info'], '账号登录正常，该账号将用于自动登录')
                 input(log("持续监测互联网连接状态，请按任意键确认", False))
+                set_log_level(log_status_input)
                 spinner = Spinner(log('持续监测中 ', False))
                 while True:
                     if log_status['info'] == get_log_level():
