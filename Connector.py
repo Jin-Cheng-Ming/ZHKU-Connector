@@ -28,7 +28,10 @@ def welcome(version: str):
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version {version}]              
+    ::ZHKU connector::            [version {version}]      
+      
+    - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
+    - last update: 2022-09 
     ''')
 
 
