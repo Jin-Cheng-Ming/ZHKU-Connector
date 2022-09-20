@@ -1,9 +1,16 @@
 from abc import ABC, abstractmethod
 import datetime  # 用于记录当前时间
+import ctypes
 
 log_status = {'debug': 1, 'info': 2, 'error': 3}
 log_level = log_status['info']
+FOREGROUND_RED = 0x0c  # 红色
+FOREGROUND_WHITE = 0x0f  # 白色
 
+STD_INPUT_HANDLE = -10
+STD_OUTPUT_HANDLE = -11
+STD_ERROR_HANDLE = -12
+std_out_handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 
 class LoggerHandlerBase(ABC):
     """
@@ -13,6 +20,10 @@ class LoggerHandlerBase(ABC):
     level = None
 
     def set_next_logger(self, next_logger):
+        """
+        设置下一个日志类
+        :param next_logger: 下一个日志类
+        """
         self._next_logger = next_logger
 
     @abstractmethod
@@ -31,6 +42,7 @@ class ConsoleLogger(LoggerHandlerBase):
         self.level = level
 
     def write(self, message: str):
+        ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_WHITE)
         print(f'[{datetime.datetime.now()}] {message}')
 
 
@@ -39,7 +51,9 @@ class ErrorLogger(LoggerHandlerBase):
         self.level = level
 
     def write(self, message: str):
-        print(f'[{datetime.datetime.now()}] {message}')
+        ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_RED)
+        print(f'[{datetime.datetime.now()}] Error: {message}')
+        ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_WHITE)
 
 
 def get_logger():

@@ -9,6 +9,7 @@ import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序
+import ctypes  # 用于控制命令行终端
 from LoggerHandler import get_logger, get_log_level, set_log_level, log_status
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
@@ -16,8 +17,18 @@ internet_quick_test = True
 auto_login = True
 logger = get_logger()
 
+FOREGROUND_DARKGREEN = 0x02  # 暗绿色
+FOREGROUND_WHITE = 0x0f  # 白色
+
+STD_INPUT_HANDLE = -10
+STD_OUTPUT_HANDLE = -11
+STD_ERROR_HANDLE = -12
+std_out_handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+
 
 def welcome(version: str):
+    ctypes.windll.kernel32.SetConsoleTitleW('ZHKU-connector-1.2')
+    ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_DARKGREEN)
     """ 启动横幅
 
     :param version: 版本号
@@ -33,6 +44,7 @@ def welcome(version: str):
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
     - last update: 2022-09 
     ''')
+    ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_WHITE)
 
 
 def get_redirect_url(url: str):
@@ -79,13 +91,13 @@ def connect_status_test(host_name: str):
         command = 'ping -n 2 %s' % host_name
     elif platform.system() == 'Linux':
         command = 'ping -c 2 %s' % host_name
-    network_state = subprocess.run(command, stdout=subprocess.PIPE, shell=True).returncode
     logger.log_message(log_status['info'], f'> {command}')
+    network_state = subprocess.run(command, stdout=subprocess.PIPE, shell=True).returncode
     if network_state == 0:
         logger.log_message(log_status['info'], '执行结果：连接正常')
         return True
     else:
-        logger.log_message(log_status['error'], '执行结果：连接失败')
+        logger.log_message(log_status['info'], '执行结果：连接失败')
         return False
 
 
@@ -201,9 +213,9 @@ def info_input():
     :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
     """
     info = {
-        'hostname': input(log('请输入登录地址： ', False)),
-        'user_id': input(log('请输入账号： ', False)),
-        'password': getpass.getpass(log('请输入密码： ', False))
+        'hostname': input(log('请输入登录地址：', False)),
+        'user_id': input(log('请输入账号：', False)),
+        'password': getpass.getpass(log('请输入密码：', False))
     }
     if 'http' in info['hostname']:
         info['hostname'] = info['hostname'][info['hostname'].index('://') + 3:]
@@ -219,7 +231,7 @@ def exit_with_confirmation():
 
 
 if __name__ == '__main__':
-    welcome('1.2')
+    welcome('1.3')
     info = info_input()
     auto_login_input = input(f'[{datetime.datetime.now()}] 是否开启账号自动登录（Y/N）：')
     if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
@@ -260,20 +272,30 @@ if __name__ == '__main__':
                 input(log("持续监测互联网连接状态，请按任意键确认", False))
                 set_log_level(log_status_input)
                 spinner = Spinner(log('持续监测中 ', False))
+                # whnd = ctypes.windll.kernel32.GetConsoleWindow()
+                #    ctypes.windll.kernel32.CloseHandle(whnd)
                 while True:
+                    # if whnd != 0:
+                    #    logger.log_message(log_status['info'],
+                    #                       '3秒后在隐藏窗口，在后台运行，如果断网窗口将自动重现（windows）')
+                    #     time.sleep(3)
+                    #    ctypes.windll.user32.ShowWindow(whnd, 0)
                     if log_status['info'] == get_log_level():
                         print('\n')
                     internet_connect = internet_connect_status_test()
                     # 互联网连接异常
                     if not internet_connect:
+                        # ctypes.windll.user32.ShowWindow(whnd, 1)
                         if log_status['error'] == get_log_level():
                             print('\n')
                         logger.log_message(log_status['error'], '互联网无法连接，执行自动登录操作')
                         # 执行登录校园网方法 获取登录状态
                         login(info['user_id'], info['password'], login_url)
-                    # 间隔15秒执行监测
+                        if log_status['error'] == get_log_level():
+                            print('\n')
+                    # 间隔5秒执行监测
                     spinner.next()
-                    time.sleep(3)
+                    time.sleep(5)
             else:
                 logger.log_message(log_status['error'], '账号已登录')
 
