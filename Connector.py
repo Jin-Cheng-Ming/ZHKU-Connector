@@ -27,7 +27,7 @@ std_out_handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 
 
 def welcome(version: str):
-    ctypes.windll.kernel32.SetConsoleTitleW('ZHKU-connector-1.2')
+    ctypes.windll.kernel32.SetConsoleTitleW(f'ZHKU-connector-{version}')
     ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_DARKGREEN)
     """ 启动横幅
 
