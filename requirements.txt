@@ -1,3 +1,4 @@
 progress==1.6
 pyquery==1.4.3
 requests==2.28.1
+termcolor==2.2.0

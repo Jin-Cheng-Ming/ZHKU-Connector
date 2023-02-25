@@ -1,16 +1,10 @@
 from abc import ABC, abstractmethod
 import datetime  # 用于记录当前时间
-import ctypes
+from termcolor import colored, cprint  # 用于使输出的字符附带颜色的样式
 
 log_status = {'debug': 1, 'info': 2, 'error': 3}
 log_level = log_status['info']
-FOREGROUND_RED = 0x0c  # 红色
-FOREGROUND_WHITE = 0x0f  # 白色
 
-STD_INPUT_HANDLE = -10
-STD_OUTPUT_HANDLE = -11
-STD_ERROR_HANDLE = -12
-std_out_handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 
 class LoggerHandlerBase(ABC):
     """
@@ -37,13 +31,20 @@ class LoggerHandlerBase(ABC):
             return self._next_logger.log_message(level, message)
 
 
+class DebugLogger(LoggerHandlerBase):
+    def __init__(self, level: int):
+        self.level = level
+
+    def write(self, message: str):
+        cprint(f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}', 'dark_grey')
+
+
 class ConsoleLogger(LoggerHandlerBase):
     def __init__(self, level: int):
         self.level = level
 
     def write(self, message: str):
-        ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_WHITE)
-        print(f'[{datetime.datetime.now()}] {message}')
+        print(f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}')
 
 
 class ErrorLogger(LoggerHandlerBase):
@@ -51,15 +52,15 @@ class ErrorLogger(LoggerHandlerBase):
         self.level = level
 
     def write(self, message: str):
-        ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_RED)
-        print(f'[{datetime.datetime.now()}] Error: {message}')
-        ctypes.windll.kernel32.SetConsoleTextAttribute(std_out_handle, FOREGROUND_WHITE)
+        cprint(f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}', 'red')
 
 
 def get_logger():
+    debug_logger = DebugLogger(log_status['debug'])
     info_logger = ConsoleLogger(log_status['info'])
     error_logger = ErrorLogger(log_status['error'])
     error_logger.set_next_logger(info_logger)
+    info_logger.set_next_logger(debug_logger)
     return error_logger
 
 
