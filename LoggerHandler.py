@@ -74,50 +74,50 @@ def get_log_level():
     return log_level
 
 
-def log(message: str, status: int, printed: bool = True):
+def log(message: str, status: int, printable: bool = True):
     """日志记录
 
     :param message: 消息
     :param status: 输入日志的级别
-    :param printed: 是否打印输出
+    :param printable: 是否打印输出
     :return: 包含时间头的消息
     """
     logger = get_logger()
-    if printed:
+    if printable:
         logger.log_message(status, message)
         return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
     else:
         return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
 
 
-def debug(message: str, printed: bool = True):
+def debug(message: str, printable: bool = True):
     """调试日志记录
 
-    :param printed: 是否打印输出
+    :param printable: 是否打印输出
     :param message: 消息
     :return: 包含时间头的消息
     """
-    return log(message, log_status['debug'], printed)
+    return log(message, log_status['debug'], printable)
 
 
-def info(message: str, printed: bool = True):
+def info(message: str, printable: bool = True):
     """日志记录
 
-    :param printed: 是否打印输出
+    :param printable: 是否打印输出
     :param message: 消息
     :return: 包含时间头的消息
     """
-    return log(message, log_status['info'], printed)
+    return log(message, log_status['info'], printable)
 
 
-def error(message: str, printed: bool = True):
+def error(message: str, printable: bool = True):
     """错误日志记录
 
-    :param printed: 是否打印输出
+    :param printable: 是否打印输出
     :param message: 消息
     :return: 包含时间头的消息
     """
-    return log(message, log_status['error'], printed)
+    return log(message, log_status['error'], printable)
 
 
 if __name__ == '__main__':
