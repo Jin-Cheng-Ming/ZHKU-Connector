@@ -1,7 +1,6 @@
 # Distributed under the MIT license, see LICENSE
 import requests  # 用于向网页发送post请求
 import subprocess  # 用于在程序中执行cmd命令
-import datetime  # 用于记录当前时间
 from pyquery import PyQuery  # 用于解析数据
 import time  # 用于设置延时
 import getpass  # 用于避免密码的直接输出
@@ -10,14 +9,12 @@ import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
-from LoggerHandler import get_logger, set_log_level, log_status
+from LoggerHandler import debug, info, error
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
 internet_quick_test = True
 auto_login = True
 unprinted = False
-logger = get_logger()
-set_log_level(log_status['info'])
 
 
 def welcome():
@@ -130,48 +127,6 @@ def login_address_connect_status_test(url: str):
     else:
         debug('登录地址连接失败')
         return False
-
-
-def debug(message: str, printed: bool = True):
-    """调试日志记录
-
-    :param printed: 是否打印输出
-    :param message: 消息
-    :return: 包含时间头的消息
-    """
-    if printed:
-        logger.log_message(log_status['debug'], message)
-        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
-    else:
-        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
-
-
-def info(message: str, printed: bool = True):
-    """日志记录
-
-    :param printed: 是否打印输出
-    :param message: 消息
-    :return: 包含时间头的消息
-    """
-    if printed:
-        logger.log_message(log_status['info'], message)
-        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
-    else:
-        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
-
-
-def error(message: str, printed: bool = True):
-    """错误日志记录
-
-    :param printed: 是否打印输出
-    :param message: 消息
-    :return: 包含时间头的消息
-    """
-    if printed:
-        logger.log_message(log_status['error'], message)
-        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
-    else:
-        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
 
 
 def login(user_id, password, url):

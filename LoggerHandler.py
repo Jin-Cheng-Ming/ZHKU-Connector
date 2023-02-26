@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import datetime  # 用于记录当前时间
-from termcolor import colored, cprint  # 用于使输出的字符附带颜色的样式
+from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 
 log_status = {'debug': 1, 'info': 2, 'error': 3}
 log_level = log_status['info']
@@ -72,6 +72,52 @@ def set_log_level(level: int):
 def get_log_level():
     global log_level
     return log_level
+
+
+def log(message: str, status: int, printed: bool = True):
+    """日志记录
+
+    :param message: 消息
+    :param status: 输入日志的级别
+    :param printed: 是否打印输出
+    :return: 包含时间头的消息
+    """
+    logger = get_logger()
+    if printed:
+        logger.log_message(status, message)
+        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
+    else:
+        return f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}'
+
+
+def debug(message: str, printed: bool = True):
+    """调试日志记录
+
+    :param printed: 是否打印输出
+    :param message: 消息
+    :return: 包含时间头的消息
+    """
+    return log(message, log_status['debug'], printed)
+
+
+def info(message: str, printed: bool = True):
+    """日志记录
+
+    :param printed: 是否打印输出
+    :param message: 消息
+    :return: 包含时间头的消息
+    """
+    return log(message, log_status['info'], printed)
+
+
+def error(message: str, printed: bool = True):
+    """错误日志记录
+
+    :param printed: 是否打印输出
+    :param message: 消息
+    :return: 包含时间头的消息
+    """
+    return log(message, log_status['error'], printed)
 
 
 if __name__ == '__main__':
