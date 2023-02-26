@@ -9,7 +9,7 @@ import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序
-from termcolor import colored, cprint  # 用于使输出的字符附带颜色的样式
+from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import get_logger, set_log_level, log_status
 
 internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
@@ -25,14 +25,6 @@ def welcome():
 
     :return: 包含字符画的横幅
     """
-    # text = colored('Hello, World!', 'red', attrs=['reverse', 'blink'])
-    # print(text)
-    # print_red_on_cyan = lambda x: cprint(x, 'red', 'on_cyan')
-    # print_red_on_cyan('Hello, World!')
-    # print_red_on_cyan('Hello, Universe!')
-    # for i in range(10):
-    #     cprint(i, 'magenta', end=' ')
-    # cprint("Attention!", 'red', attrs=['bold'], file=sys.stderr)
     cprint(f'''
       _________  ____  ____  ___  _____/ /_____  _____
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
@@ -272,12 +264,6 @@ if __name__ == '__main__':
             internet_quick_test = False
         else:
             internet_quick_test = True
-    # log_error_input = input(
-    #     info('是否仅输出网络异常自动登录连接日志（Y/N）：', unprinted))
-    # if len(log_error_input) > 0 and any(res in log_error_input for res in ['n', 'N']):
-    #     log_status_input = log_status['info']
-    # else:
-    #     log_status_input = log_status['error']
     protocol = 'http://'
     login_url = protocol + login_info['hostname']
     info('网络链路检测......')
