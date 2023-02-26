@@ -186,13 +186,20 @@ def info_input():
 
     :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
     """
+    hostname = input(info('请输入登录地址：', unprinted))
+    if len(hostname) > 0:
+        if 'http' in hostname:
+            hostname = hostname[hostname.index('://') + 3:]
+    else:
+        info('登录地址默认为：1.1.1.1')
+        hostname = '1.1.1.1'
+    user_id = input(info('请输入账号：', unprinted)),
+    password = getpass.getpass(info('请输入密码：', unprinted))
     login_info_dist = {
-        'hostname': input(info('请输入登录地址：', unprinted)),
-        'user_id': input(info('请输入账号：', unprinted)),
-        'password': getpass.getpass(info('请输入密码：', unprinted))
+        'hostname': hostname,
+        'user_id': user_id,
+        'password': password
     }
-    if 'http' in login_info_dist['hostname']:
-        login_info_dist['hostname'] = login_info_dist['hostname'][login_info_dist['hostname'].index('://') + 3:]
     return login_info_dist
 
 
@@ -207,14 +214,12 @@ def exit_with_confirmation():
 if __name__ == '__main__':
     welcome()
     login_info = info_input()
-    auto_login_input = input(
-        info('是否开启账号自动登录（Y/N）：', unprinted))
+    auto_login_input = input(info('是否开启账号自动登录（Y/N）：', unprinted))
     if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
         auto_login = False
     else:
         auto_login = True
-        internet_quick_test_input = input(
-            info('是否开启快速互联网连通测试（Y/N）：', unprinted))
+        internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', unprinted))
         if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
             internet_quick_test = False
         else:
@@ -239,13 +244,14 @@ if __name__ == '__main__':
         if login_status:
             if auto_login:
                 info('账号登录正常，该账号将用于自动登录')
-                input(info("持续监测互联网连接状态，请按任意键确认", unprinted))
+                input(info("持续监测互联网连接状态，请按任意键确认...", unprinted))
                 # set_log_level(log_status_input)
                 spinner = Spinner(info('持续监测中 ', unprinted))
                 while True:
                     internet_connect = internet_connect_status_test()
                     # 互联网连接异常
                     if not internet_connect:
+                        print('')
                         error('互联网无法连接，执行自动登录操作')
                         # 执行登录校园网方法 获取登录状态
                         login_status = login(login_info['user_id'], login_info['password'], login_url)
@@ -253,12 +259,14 @@ if __name__ == '__main__':
                             info('自动登录成功')
                         else:
                             error('自动登录失败')
+                        spinner = Spinner(info('持续监测中 ', unprinted))
                     # 间隔5秒执行监测
-                    spinner.next()
-                    time.sleep(5)
+                    for i in range(5):
+                        spinner.next()
+                        time.sleep(1)
             else:
                 error('账号已登录')
 
         else:
-            error('账号登录失败，检查账号信息是否正确，再试试？')
+            error('账号登录失败，检查账号信息是否正确，再重启试试？')
     exit_with_confirmation()
