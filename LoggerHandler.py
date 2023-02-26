@@ -25,6 +25,7 @@ class LoggerHandlerBase(ABC):
         pass
 
     def log_message(self, level: int, message: str):
+        # todo 只输出最高级别的日志?
         if level >= self.level >= log_level:
             self.write(message)
         if self._next_logger:

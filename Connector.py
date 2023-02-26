@@ -240,6 +240,7 @@ if __name__ == '__main__':
     else:
         # 登录地址正常访问，检测账号是否可以正常登录，并检测互联网连接
         info('登录地址访问正常，检测账号能否正常登录……')
+        # fixme 之前已经认证登录了，再使用不正确的账号密码会提示账号登录正常的错误
         login_status = login(login_info['user_id'], login_info['password'], login_url)
         if login_status:
             if auto_login:
