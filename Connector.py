@@ -27,11 +27,11 @@ def welcome():
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version 1.4]    
+    ::ZHKU connector::            [version 1.4.1]    
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
-    - last update: 2023-02
+    - last update: 2023-03
     ''', 'dark_grey')
 
 
@@ -207,7 +207,8 @@ def exit_with_confirmation():
     """
     退出程序，退出前暂停一下，按任意键关闭后将关闭程序
     """
-    os.system("pause")
+    if platform.system() == 'Windows':
+        os.system("pause")
     exit(0)
 
 
