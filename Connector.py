@@ -11,7 +11,7 @@ import os  # 用于暂停程序
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
 
-unprinted = False
+printable = False
 
 
 def welcome():
@@ -38,15 +38,15 @@ def info_input():
 
     :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
     """
-    hostname = input(info('请输入登录地址：', unprinted))
+    hostname = input(info('请输入登录地址：', printable))
     if len(hostname) > 0:
         if 'http' in hostname:
             hostname = hostname[hostname.index('://') + 3:]
     else:
         info('使用默认登录地址：1.1.1.1')
         hostname = '1.1.1.1'
-    user_id = input(info('请输入账号：', unprinted)),
-    password = getpass.getpass(info('请输入密码：', unprinted))
+    user_id = input(info('请输入账号：', printable)),
+    password = getpass.getpass(info('请输入密码：', printable))
     login_info_dist = {
         'hostname': hostname,
         'user_id': user_id,
@@ -56,13 +56,13 @@ def info_input():
 
 
 def setting_input():
-    agent_input = input(info('请设置登录的用户代理方式  1）PC-默认  2）Mobile：', unprinted))
+    agent_input = input(info('请设置登录的用户代理方式  1）PC-默认  2）Mobile：', printable))
     if len(agent_input) == 0:
         agent = 'pc'
         info('使用默认用户代理登录：PC')
     else:
         while len(agent_input) > 1 or not agent_input.isdigit():
-            agent_input = input(info('设置代理有误，请重新选择  1）PC-默认  2）Mobile：', unprinted))
+            agent_input = input(info('设置代理有误，请重新选择  1）PC-默认  2）Mobile：', printable))
         if agent_input == '2':
             info('使用移动端代理登录')
             agent = 'mobile'
@@ -70,13 +70,13 @@ def setting_input():
             info('使用PC端代理登录')
             agent = 'pc'
 
-    auto_login_input = input(info('是否开启账号自动登录（Y/N）：', unprinted))
+    auto_login_input = input(info('是否开启账号自动登录（Y/N）：', printable))
     if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
         auto_login = False
     else:
         auto_login = True
 
-        internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', unprinted))
+        internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', printable))
         if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
             internet_quick_test = False
         else:
@@ -249,7 +249,7 @@ def login(user_id, password, url, user_agent='pc'):
 
 
 def auto_login(user_id, password, url, user_agent='pc'):
-    spinner = Spinner(info('持续监测中 ', unprinted))
+    spinner = Spinner(info('持续监测中 ', printable))
     while True:
         internet_connect = internet_connect_status_test(setting_info['internet_quick_test'])
         # 互联网连接异常
@@ -262,7 +262,7 @@ def auto_login(user_id, password, url, user_agent='pc'):
                 info('自动登录成功')
             else:
                 error('自动登录失败')
-            spinner = Spinner(info('持续监测中 ', unprinted))
+            spinner = Spinner(info('持续监测中 ', printable))
         # 间隔5秒执行监测
         for i in range(5):
             spinner.next()
@@ -309,7 +309,7 @@ if __name__ == '__main__':
             if setting_info['auto_login']:
                 # 后台持续监测
                 info('账号登录正常，该账号将用于自动登录')
-                input(info("持续监测互联网连接状态，请按任意键确认...", unprinted))
+                input(info("持续监测互联网连接状态，请按任意键确认...", printable))
                 auto_login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
             else:
                 error('该设备已登录')
