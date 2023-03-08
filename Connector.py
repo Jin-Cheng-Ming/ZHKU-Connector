@@ -9,11 +9,8 @@ import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
-from LoggerHandler import debug, info, error
+from LoggerHandler import debug, info, error  # 日志
 
-internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
-internet_quick_test = True
-auto_login = True
 unprinted = False
 
 
@@ -27,12 +24,70 @@ def welcome():
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version 1.4.1]    
+    ::ZHKU connector::            [version 1.5]    
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
     - last update: 2023-03
     ''', 'dark_grey')
+
+
+def info_input():
+    """ 设置登录相关信息
+    包括登录地址，账号和密码
+
+    :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
+    """
+    hostname = input(info('请输入登录地址：', unprinted))
+    if len(hostname) > 0:
+        if 'http' in hostname:
+            hostname = hostname[hostname.index('://') + 3:]
+    else:
+        info('使用默认登录地址：1.1.1.1')
+        hostname = '1.1.1.1'
+    user_id = input(info('请输入账号：', unprinted)),
+    password = getpass.getpass(info('请输入密码：', unprinted))
+    login_info_dist = {
+        'hostname': hostname,
+        'user_id': user_id,
+        'password': password
+    }
+    return login_info_dist
+
+
+def setting_input():
+    agent_input = input(info('请设置登录的用户代理方式  1）PC-默认  2）Mobile：', unprinted))
+    if len(agent_input) == 0:
+        agent = 'pc'
+        info('使用默认用户代理登录：PC')
+    else:
+        while len(agent_input) > 1 or not agent_input.isdigit():
+            agent_input = input(info('设置代理有误，请重新选择  1）PC-默认  2）Mobile：', unprinted))
+        if agent_input == '2':
+            info('使用移动端代理登录')
+            agent = 'mobile'
+        else:
+            info('使用PC端代理登录')
+            agent = 'pc'
+
+    auto_login_input = input(info('是否开启账号自动登录（Y/N）：', unprinted))
+    if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
+        auto_login = False
+    else:
+        auto_login = True
+
+        internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', unprinted))
+        if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
+            internet_quick_test = False
+        else:
+            internet_quick_test = True
+
+    setting_info_dist = {
+        'user_agent': agent,
+        'auto_login': auto_login,
+        'internet_quick_test': internet_quick_test
+    }
+    return setting_info_dist
 
 
 def get_redirect_url(url: str):
@@ -90,12 +145,14 @@ def connect_status_test(host_name: str):
         return False
 
 
-def internet_connect_status_test():
+def internet_connect_status_test(internet_quick_test: bool = True):
     """ 从备选的互联网列表中测试连接状态
 
+    :param: internet_quick_test: 是否快速互联网连接测试
     :return: 是否有互联网连接
     """
-    global internet_host_list
+    internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
+
     debug('检测是否有互联网连接……')
     if internet_quick_test:
         host = random.choice(internet_host_list)
@@ -129,12 +186,13 @@ def login_address_connect_status_test(url: str):
         return False
 
 
-def login(user_id, password, url):
+def login(user_id, password, url, user_agent='pc'):
     """ 登录
 
     :param user_id: 账号
     :param password:  密码
     :param url: 登录地址
+    :param user_agent: 用户代理，可以选择pc或者mobile
     :return: 是否登录成功
     """
     # 请求数据
@@ -157,13 +215,23 @@ def login(user_id, password, url):
         "passwd": password,
         "remInfo": "on"
     }
+    # 添加请求头
+    agent_header = {
+        'pc': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'
+        },
+        'mobile': {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) '
+                          'AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
+        }
+    }
     # 设置登录状态
     login_result_status = False
     info('正在登录中……')
     login_address = get_redirect_url(url)
     try:
         # 对校园网登录网址发送请求(执行登录操作) 并获取请求到的页面数据
-        res = requests.post(login_address, data=data).text
+        res = requests.post(login_address, data=data, headers=agent_header[user_agent]).text
         # 使用pyquery初始化数据
         doc = PyQuery(res)
         # 获取登录结果状态
@@ -180,27 +248,32 @@ def login(user_id, password, url):
         return False
 
 
-def info_input():
-    """ 设置登录相关信息
-    包括登录地址，账号和密码
+def auto_login(user_id, password, url, user_agent='pc'):
+    spinner = Spinner(info('持续监测中 ', unprinted))
+    while True:
+        internet_connect = internet_connect_status_test(setting_info['internet_quick_test'])
+        # 互联网连接异常
+        if not internet_connect:
+            print('')
+            error('互联网无法连接，执行自动登录操作')
+            # 执行登录校园网方法 获取登录状态
+            login_status = login(user_id, password, url, user_agent)
+            if is_login(login_status):
+                info('自动登录成功')
+            else:
+                error('自动登录失败')
+            spinner = Spinner(info('持续监测中 ', unprinted))
+        # 间隔5秒执行监测
+        for i in range(5):
+            spinner.next()
+            time.sleep(1)
 
-    :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
+
+def is_login(login_status: bool):
     """
-    hostname = input(info('请输入登录地址：', unprinted))
-    if len(hostname) > 0:
-        if 'http' in hostname:
-            hostname = hostname[hostname.index('://') + 3:]
-    else:
-        info('登录地址默认为：1.1.1.1')
-        hostname = '1.1.1.1'
-    user_id = input(info('请输入账号：', unprinted)),
-    password = getpass.getpass(info('请输入密码：', unprinted))
-    login_info_dist = {
-        'hostname': hostname,
-        'user_id': user_id,
-        'password': password
-    }
-    return login_info_dist
+    根据登录返回的结果检查登录是否成功
+    """
+    return login_status is True
 
 
 def exit_with_confirmation():
@@ -215,60 +288,35 @@ def exit_with_confirmation():
 if __name__ == '__main__':
     welcome()
     login_info = info_input()
-    auto_login_input = input(info('是否开启账号自动登录（Y/N）：', unprinted))
-    if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
-        auto_login = False
-    else:
-        auto_login = True
-        internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', unprinted))
-        if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
-            internet_quick_test = False
-        else:
-            internet_quick_test = True
-    protocol = 'http://'
-    login_url = protocol + login_info['hostname']
+    setting_info = setting_input()
+
     info('网络链路检测......')
+    login_url = f"http://{login_info['hostname']}"
     login_connect = login_address_connect_status_test(login_url)
-    internet_connect = internet_connect_status_test()
-    # 后台持续监测
+    internet_connect = internet_connect_status_test(setting_info['internet_quick_test'])
     info(
-        f'网络链路检测完毕：登录地址{"访问正常" if login_connect else "无法连接"}，互联网{"访问正常" if internet_connect else "无法连接"}')
-    # 设置账号登录状态
-    login_status = False
-    if not login_connect:
-        # 登录地址无法连接，提示接入校园网
-        error('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
-    else:
+        f'网络链路检测完毕：'
+        f'登录地址{"访问正常" if login_connect else "无法连接"}，互联网{"访问正常" if internet_connect else "无法连接"}'
+    )
+
+    if login_connect:
         # 登录地址正常访问，检测账号是否可以正常登录，并检测互联网连接
         info('登录地址访问正常，检测账号能否正常登录……')
         # fixme 之前已经认证登录了，再使用不正确的账号密码会提示账号登录正常的错误
-        login_status = login(login_info['user_id'], login_info['password'], login_url)
-        if login_status:
-            if auto_login:
+        # 设置账号登录状态
+        login_status = login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
+        if is_login(login_status):
+            if setting_info['auto_login']:
+                # 后台持续监测
                 info('账号登录正常，该账号将用于自动登录')
                 input(info("持续监测互联网连接状态，请按任意键确认...", unprinted))
-                # set_log_level(log_status_input)
-                spinner = Spinner(info('持续监测中 ', unprinted))
-                while True:
-                    internet_connect = internet_connect_status_test()
-                    # 互联网连接异常
-                    if not internet_connect:
-                        print('')
-                        error('互联网无法连接，执行自动登录操作')
-                        # 执行登录校园网方法 获取登录状态
-                        login_status = login(login_info['user_id'], login_info['password'], login_url)
-                        if login_status:
-                            info('自动登录成功')
-                        else:
-                            error('自动登录失败')
-                        spinner = Spinner(info('持续监测中 ', unprinted))
-                    # 间隔5秒执行监测
-                    for i in range(5):
-                        spinner.next()
-                        time.sleep(1)
+                auto_login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
             else:
-                error('账号已登录')
-
+                error('该设备已登录')
         else:
-            error('账号登录失败，检查账号信息是否正确，再重启试试？')
+            error('登录失败，请检查账号信息是否正确，再重启程序试试？')
+    else:
+        # 登录地址无法连接，提示接入校园网
+        error('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
+
     exit_with_confirmation()
