@@ -24,7 +24,7 @@ def welcome():
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version 1.5]    
+    ::ZHKU connector::            [version 1.5.1]    
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
@@ -72,20 +72,20 @@ def setting_input():
 
     auto_login_input = input(info('是否开启账号自动登录（Y/N）：', printable))
     if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
-        auto_login = False
+        auto = False
     else:
-        auto_login = True
+        auto = True
 
-        internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', printable))
-        if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
-            internet_quick_test = False
-        else:
-            internet_quick_test = True
+    internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', printable))
+    if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
+        quick = False
+    else:
+        quick = True
 
     setting_info_dist = {
         'user_agent': agent,
-        'auto_login': auto_login,
-        'internet_quick_test': internet_quick_test
+        'auto_login': auto,
+        'internet_quick_test': quick,
     }
     return setting_info_dist
 
