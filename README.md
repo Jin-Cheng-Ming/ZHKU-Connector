@@ -6,11 +6,11 @@
 
 下载打包好的应用程序直接运行即可
 
-| 平台       | 下载                                                                                                               |
-|----------|------------------------------------------------------------------------------------------------------------------|
-| Windows版 | [win-1.5](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.5/ZHKU-Connector-windows-1.5.exe) |
-| Linux版   | [linux-1.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.4/ZHKU-Connector)               |
-| mac版     |                                                                                                                  |
+| 平台    | 下载                                                                                                                     |
+|-------|------------------------------------------------------------------------------------------------------------------------|
+| Windows | [win-1.5.1](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.5.1/ZHKU-Connector-windows-1.5.1.exe) |
+| Linux | [linux-1.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.4/ZHKU-Connector)                     |
+| mac   |                                                                                                                        |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。
 

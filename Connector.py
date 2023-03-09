@@ -70,13 +70,13 @@ def setting_input():
             info('使用PC端代理登录')
             agent = 'pc'
 
-    auto_login_input = input(info('是否开启账号自动登录（Y/N）：', printable))
+    auto_login_input = input(info('是否开启账号自动登录（Y-默认/N）：', printable))
     if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
         auto = False
     else:
         auto = True
 
-    internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y/N）：', printable))
+    internet_quick_test_input = input(info('是否开启快速互联网连通测试（Y-默认/N）：', printable))
     if len(internet_quick_test_input) > 0 and any(res in internet_quick_test_input for res in ['n', 'N']):
         quick = False
     else:
