@@ -24,11 +24,11 @@ def welcome():
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version 1.5.1]    
+    ::ZHKU connector::            [version 1.5.2]    
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
-    - last update: 2023-03
+    - last update: 2023-04
     ''', 'dark_grey')
 
 
@@ -151,7 +151,7 @@ def internet_connect_status_test(internet_quick_test: bool = True):
     :param: internet_quick_test: 是否快速互联网连接测试
     :return: 是否有互联网连接
     """
-    internet_host_list = ['www.baidu.com', 'www.jd.com', 'www.taobao.com', 'www.douyin.com', 'www.ele.me']
+    internet_host_list = ['www.zhku.edu.cn', 'baidu.com', 'douyin.com']
 
     debug('检测是否有互联网连接……')
     if internet_quick_test:
