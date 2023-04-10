@@ -123,10 +123,3 @@ def error(message: str, printable: bool = True):
     :return: 包含时间头的消息
     """
     return log(message, log_status['error'], printable)
-
-
-if __name__ == '__main__':
-    logger = get_logger()
-    logger.log_message(log_status['info'], 'This is an information.')
-    print('--')
-    logger.log_message(log_status['error'], 'This is an error information.')
