@@ -8,7 +8,7 @@
 
 | 平台    | 下载                                                                                                                     |
 |-------|------------------------------------------------------------------------------------------------------------------------|
-| Windows | [win-1.5.1](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.5.1/ZHKU-Connector-windows-1.5.1.exe) |
+| Windows | [win-1.6.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.6.0/ZHKU-Connector-windows-1.6.0.exe) |
 | Linux | [linux-1.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.4/ZHKU-Connector)                     |
 | mac   |                                                                                                                        |
 
@@ -23,6 +23,7 @@ pip install requests  # 用于向网页发送post请求
 pip install pyquery  # 用于解析数据
 pip install progress  # 用于说明检测状态
 pip install termcolor  # 用于使输出的字符附带颜色的样式
+pip install PyGithub  # 用于检查Github发行版的更新
 ```
 
 或者根据依赖清单安装，运行如下命令
@@ -47,6 +48,8 @@ python3 Connector.py
 
 ~~也可以通过login文件运行：给login赋权后，就可以通过更简单的命令来运行了。
 注意，如果环境是python3，那么需要将login里面的命令python改为python3~~
+
+> 待更新
 
 ```shell
 chmod 777 ./login # 赋权
@@ -73,6 +76,8 @@ screen -r
 
 ### Windows
 
+> 待更新
+
 ```shell
 
 ```
@@ -81,8 +86,3 @@ screen -r
 
 在命令行中用 `Ctrl` + `C` 可以强制退出
 
-## 📝TODO
-
-- [X] 输入密码不可见
-- [X] 同账号两设备同时登录（使用不同的代理实现）
-- [ ] 后台运行(目前只有Linux)
