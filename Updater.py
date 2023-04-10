@@ -2,8 +2,6 @@ from github import Github  # 从GitHub仓库中获取更新
 
 # 当前版本
 current_version = ''
-# 仓库所有者的GitHub访问令牌
-access_token = "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"
 
 
 def set_current_version(version: str):
@@ -15,7 +13,7 @@ def update():
     print('正在检查更新...')
     try:
         # 创建一个实例
-        instance = Github(access_token)
+        instance = Github()
         repo = instance.get_repo("Jin-Cheng-Ming/ZHKU-Connector")
         # 获取项目仓库:
         if repo.get_latest_release().tag_name > current_version:
