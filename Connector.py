@@ -10,11 +10,13 @@ from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
+import Updater  # 用于获取程序更新信息
 
 printable = False
+current_version = '1.6.0'
 
 
-def welcome():
+def welcome(version: str):
     """ 启动横幅
 
     :return: 包含字符画的横幅
@@ -24,7 +26,7 @@ def welcome():
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version 1.5.2]    
+    ::ZHKU connector::            [version {version}]    
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
@@ -286,7 +288,10 @@ def exit_with_confirmation():
 
 
 if __name__ == '__main__':
-    welcome()
+    welcome(current_version)
+    # 获取更新
+    Updater.set_current_version(current_version)
+    Updater.update()
     login_info = info_input()
     setting_info = setting_input()
 
