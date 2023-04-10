@@ -1,5 +1,5 @@
 progress==1.6
-pyquery==1.4.3
-requests==2.28.1
+pyquery==2.0.0
+requests==2.28.2
 termcolor==2.2.0
 PyGithub==1.58.1
