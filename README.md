@@ -19,6 +19,7 @@
 在启动之前，需要下载一些依赖包，运行如下命令
 
 ```shell
+pip install pyyaml  # 用于读取配置
 pip install requests  # 用于向网页发送post请求
 pip install pyquery  # 用于解析数据
 pip install progress  # 用于说明检测状态

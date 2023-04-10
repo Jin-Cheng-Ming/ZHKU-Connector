@@ -1,4 +1,5 @@
 # Distributed under the MIT license, see LICENSE
+import yaml  # 用于加载配置
 import requests  # 用于向网页发送post请求
 import subprocess  # 用于在程序中执行cmd命令
 from pyquery import PyQuery  # 用于解析数据
@@ -12,8 +13,10 @@ from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
 import Updater  # 用于获取程序更新信息
 
-printable = False
-current_version = '1.6.0'
+with open('./config.yml', 'r', encoding='utf-8') as f:
+    config = yaml.load(f.read(), Loader=yaml.FullLoader)
+printable = config['printable']
+current_version = config['current_version']
 
 
 def welcome(version: str):
