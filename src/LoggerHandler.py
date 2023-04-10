@@ -1,9 +1,10 @@
 import yaml  # 用于加载配置
+from Utils import get_resource  # 用于获取静态资源
 from abc import ABC, abstractmethod
 import datetime  # 用于记录当前时间
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 
-with open('./config.yml', 'r', encoding='utf-8') as f:
+with open(get_resource('config.yml'), 'r', encoding='utf-8') as f:
     config = yaml.load(f.read(), Loader=yaml.FullLoader)
 log_status = {'debug': 1, 'info': 2, 'error': 3}
 log_level = log_status[config['log_level']]

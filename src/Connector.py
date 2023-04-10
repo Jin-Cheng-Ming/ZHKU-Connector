@@ -9,11 +9,12 @@ import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序
+from Utils import get_resource  # 用于获取静态资源
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
 import Updater  # 用于获取程序更新信息
 
-with open('config.yml', 'r', encoding='utf-8') as f:
+with open(get_resource('config.yml'), 'r', encoding='utf-8') as f:
     config = yaml.load(f.read(), Loader=yaml.FullLoader)
 printable = config['printable']
 current_version = config['current_version']
