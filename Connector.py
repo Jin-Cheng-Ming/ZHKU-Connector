@@ -13,13 +13,13 @@ from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
 import Updater  # 用于获取程序更新信息
 
-with open('./config.yml', 'r', encoding='utf-8') as f:
+with open('config.yml', 'r', encoding='utf-8') as f:
     config = yaml.load(f.read(), Loader=yaml.FullLoader)
 printable = config['printable']
 current_version = config['current_version']
 
 
-def welcome(version: str):
+def welcome():
     """ 启动横幅
 
     :return: 包含字符画的横幅
@@ -29,7 +29,7 @@ def welcome(version: str):
      / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
     / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
     \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-    ::ZHKU connector::            [version {version}]    
+    ::ZHKU connector::            [version {current_version}]    
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
@@ -291,9 +291,8 @@ def exit_with_confirmation():
 
 
 if __name__ == '__main__':
-    welcome(current_version)
+    welcome()
     # 获取更新
-    Updater.set_current_version(current_version)
     Updater.update()
     login_info = info_input()
     setting_info = setting_input()
