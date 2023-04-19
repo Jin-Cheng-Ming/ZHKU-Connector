@@ -8,8 +8,8 @@
 
 | 平台    | 下载                                                                                                                     |
 |-------|------------------------------------------------------------------------------------------------------------------------|
-| Windows | [win-1.6.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.6.0/ZHKU-Connector-windows-1.6.0.exe) |
-| Linux | [linux-1.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.4/ZHKU-Connector)                     |
+| Windows | [1.6.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.6.0/ZHKU-Connector-windows-1.6.0.exe) |
+| Linux | [1.6.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.6.0/ZHKU-Connector-linux-1.6.0)                     |
 | mac   |                                                                                                                        |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。
@@ -38,13 +38,23 @@ pip install -r requirements.txt
 通过python命令启动，在所在文件夹内，运行如下命令
 
 ```shell
-python Connector.py
+python ./src/Connector.py
 ```
 
 如果环境里的有python3，也可以试试使用python3命令：
 
 ```shell
-python3 Connector.py
+python3 ./src/Connector.py
+```
+
+不用python跑代码的话，也可以直接使用发行版直接启动：
+
+在Windows中直接双击exe文件就可以启动了。
+
+在Linux系统中，需要给文件先赋权，设置可执行，然后执行该文件即可。
+
+```shell
+chmod +x <文件名>
 ```
 
 ~~也可以通过login文件运行：给login赋权后，就可以通过更简单的命令来运行了。
