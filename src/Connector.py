@@ -244,7 +244,7 @@ def login(user_id, password, url, user_agent='pc'):
     }
     # 设置登录状态
     login_result_status = False
-    info('正在登录中……')
+    info(f'[{user_id[0]}]正在登录中……')
     login_address = get_redirect_url(url)
     try:
         # 对校园网登录网址发送请求(执行登录操作) 并获取请求到的页面数据
@@ -307,7 +307,8 @@ def ask_is_edit_login_info():
     """
     设置5秒内没有输入的话加载配置
     """
-    return input('保存有登录信息，5秒后加载这个配置（按任意键重新编辑）')
+
+    return input(f'保存有登录信息[{credentials["login_info"]["user_id"][0]}]，5秒后加载这个配置（按任意键重新编辑）')
 
 
 def login_info_input():
