@@ -63,12 +63,12 @@ def info_input():
         hostname = '1.1.1.1'
     user_id = input(info('请输入账号：', printable)),
     password = getpass.getpass(info('请输入密码：', printable))
-    login_info_dist = {
+    login_info_dict = {
         'hostname': hostname,
         'user_id': user_id,
         'password': password
     }
-    return login_info_dist
+    return login_info_dict
 
 
 def setting_input():
@@ -98,12 +98,12 @@ def setting_input():
     else:
         quick = True
 
-    setting_info_dist = {
+    setting_info_dict = {
         'user_agent': agent,
         'auto_login': auto,
         'internet_quick_test': quick,
     }
-    return setting_info_dist
+    return setting_info_dict
 
 
 def get_redirect_url(url: str):
