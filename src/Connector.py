@@ -8,7 +8,7 @@ import getpass  # 用于避免密码的直接输出
 import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
-import os  # 用于暂停程序，删除文件
+import os  # 用于暂停程序，打开/删除文件
 from Utils import get_resource  # 用于获取静态资源
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
@@ -17,8 +17,9 @@ import pickle  # 用户持久化文件
 import func_timeout  # 用户等待用户输入
 
 network_credentials_file_name = 'network_credentials.pkl'
+network_credentials_file_path = os.path.expanduser('~') + os.sep + network_credentials_file_name
 try:
-    with open(network_credentials_file_name, 'rb') as f:
+    with open(network_credentials_file_path, 'rb') as f:
         credentials = pickle.load(f)
 except:
     credentials = None
@@ -332,7 +333,7 @@ def remember(i_user: dict, i_setting: dict):
             os.remove(resource)
             info('好的，下次启动程序不会自动登录')
         else:
-            with open(network_credentials_file_name, 'wb') as f:
+            with open(network_credentials_file_path, 'wb') as f:
                 pickle.dump({'login_info': i_user, 'setting_info': i_setting}, f)
             info('已保存本地，下次启动程序可以自动登录')
     except:
