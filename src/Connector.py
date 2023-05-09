@@ -323,7 +323,7 @@ def remember(i_user: dict, i_setting: dict):
     记住登录信息，包括用户ID和密码，还有登录的功能设置
     """
     info('是否记住登录信息，下次可以自动加载登录。')
-    is_remember_input = input(info('记住登录信息吗？ （Y[默认]/N）：', printable))
+    is_remember_input = input(info('记住登录信息吗？ （Y-默认/N）：', printable))
     # 如果输入n，则不保存信息，其余情况默认保存
     try:
         if len(is_remember_input) > 0 and any(res in is_remember_input for res in ['n', 'N']):
