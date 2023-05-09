@@ -8,14 +8,24 @@ import getpass  # 用于避免密码的直接输出
 import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
-import os  # 用于暂停程序
+import os  # 用于暂停程序，删除文件
 from Utils import get_resource  # 用于获取静态资源
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
 import Updater  # 用于获取程序更新信息
+import pickle  # 用户持久化文件
+import func_timeout  # 用户等待用户输入
+
+network_credentials_file_name = 'network_credentials.pkl'
+try:
+    with open(network_credentials_file_name, 'rb') as f:
+        credentials = pickle.load(f)
+except:
+    credentials = None
 
 with open(get_resource('config.yml'), 'r', encoding='utf-8') as f:
     config = yaml.load(f.read(), Loader=yaml.FullLoader)
+
 printable = config['printable']
 current_version = config['current_version']
 
@@ -34,7 +44,7 @@ def welcome():
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
-    - last update: 2023-04
+    - last update: 2023-05
     ''', 'dark_grey')
 
 
@@ -291,12 +301,64 @@ def exit_with_confirmation():
     exit(0)
 
 
+@func_timeout.func_set_timeout(5)
+def ask_is_edit_login_info():
+    """
+    设置5秒内没有输入的话加载配置
+    """
+    return input('保存有登录信息，5秒后加载这个配置（按任意键重新编辑）')
+
+
+def login_info_input():
+    """
+    输入用户ID和密码，还有登录的功能设置
+    """
+    i_user = info_input()
+    i_setting = setting_input()
+    return i_user, i_setting
+
+
+def remember(i_user: dict, i_setting: dict):
+    """
+    记住登录信息，包括用户ID和密码，还有登录的功能设置
+    """
+    info('是否记住登录信息，下次可以自动加载登录。')
+    is_remember_input = input(info('记住登录信息吗？ （Y[默认]/N）：', printable))
+    # 如果输入n，则不保存信息，其余情况默认保存
+    try:
+        if len(is_remember_input) > 0 and any(res in is_remember_input for res in ['n', 'N']):
+            # 删除保存的信息，没有的
+            resource = get_resource(network_credentials_file_name)
+            os.remove(resource)
+            info('好的，下次启动程序不会自动登录')
+        else:
+            with open(network_credentials_file_name, 'wb') as f:
+                pickle.dump({'login_info': i_user, 'setting_info': i_setting}, f)
+            info('已保存本地，下次启动程序可以自动登录')
+    except:
+        pass
+
+
 if __name__ == '__main__':
     welcome()
     # 获取更新
     Updater.update()
-    login_info = info_input()
-    setting_info = setting_input()
+    # 获取本地记录，如果有则在等待一定时间过后自动使用
+    is_update = None
+    if credentials:
+        try:
+            is_update = ask_is_edit_login_info()
+        except:
+            # 回车中断，使用新的自定义登录
+            print('\n没有等到你的输入，默认使用上次的登录配置')  # 因为已经保存了，不用再使用记住操作
+            is_update = 'use_last'
+        if is_update != 'use_last':
+            login_info, setting_info = login_info_input()
+        else:
+            login_info = credentials['login_info']
+            setting_info = credentials['setting_info']
+    else:
+        login_info, setting_info = login_info_input()
 
     info('网络链路检测......')
     login_url = f"http://{login_info['hostname']}"
@@ -314,10 +376,16 @@ if __name__ == '__main__':
         # 设置账号登录状态
         login_status = login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
         if is_login(login_status):
+            info('账号登录正常')
+            if is_update != 'use_last':
+                remember(login_info, setting_info)
             if setting_info['auto_login']:
                 # 后台持续监测
-                info('账号登录正常，该账号将用于自动登录')
-                input(info("持续监测互联网连接状态，请按任意键确认...", printable))
+                info('该账号将用于自动登录')
+                if credentials:
+                    info("持续监测互联网连接状态")
+                else:
+                    input(info("持续监测互联网连接状态，请按任意键确认...", printable))
                 auto_login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
             else:
                 error('该设备已登录')
