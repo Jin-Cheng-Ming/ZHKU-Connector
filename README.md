@@ -25,6 +25,7 @@ pip install pyquery  # 用于解析数据
 pip install progress  # 用于说明检测状态
 pip install termcolor  # 用于使输出的字符附带颜色的样式
 pip install PyGithub  # 用于检查Github发行版的更新
+pip install func_timeout  # 用户等待用户输入
 ```
 
 或者根据依赖清单安装，运行如下命令
