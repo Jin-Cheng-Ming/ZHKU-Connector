@@ -6,11 +6,11 @@
 
 下载打包好的应用程序直接运行即可
 
-| 平台    | 下载                                                                                                                     |
-|-------|------------------------------------------------------------------------------------------------------------------------|
-| Windows | [1.6.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.6.0/ZHKU-Connector-windows-1.6.0.exe) |
-| Linux | [1.6.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.6.0/ZHKU-Connector-linux-1.6.0)                     |
-| mac   |                                                                                                                        |
+| 平台      | 下载                                                                                                                 |
+|---------|--------------------------------------------------------------------------------------------------------------------|
+| Windows | [1.7.1](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.1/ZHKU-Connector-windows-1.7.1.exe) |
+| Linux   | [1.7.1](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.1/ZHKU-Connector-linux-1.7.1)       |
+| mac     |                                                                                                                    |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。
 
@@ -97,3 +97,6 @@ screen -r
 
 在命令行中用 `Ctrl` + `C` 可以强制退出
 
+## 🌞更新日志
+
+[点击查看](./HISTORY.md)
