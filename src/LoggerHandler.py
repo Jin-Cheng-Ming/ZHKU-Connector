@@ -50,7 +50,7 @@ class ConsoleLogger(LoggerHandlerBase):
         self.level = level
 
     def write(self, message: str):
-        print(f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}')
+        cprint(f'[{"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())}] {message}')
 
 
 class ErrorLogger(LoggerHandlerBase):

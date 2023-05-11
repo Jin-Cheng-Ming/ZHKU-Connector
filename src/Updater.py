@@ -18,7 +18,7 @@ def set_current_version(version: str):
 
 
 def update():
-    print('正在检查更新...')
+    print('\r正在检查更新...', end='')
     try:
         # 创建一个实例
         authentication = AppAuthentication(app_id=config['app_id'],
@@ -28,7 +28,7 @@ def update():
         repo = instance.get_repo("Jin-Cheng-Ming/ZHKU-Connector")
         # 获取项目仓库:
         if repo.get_latest_release().tag_name > current_version:
-            print('有可用的更新：{} => {}'.format(current_version, repo.get_latest_release().tag_name))
+            print('\r有可用的更新：{} => {}'.format(current_version, repo.get_latest_release().tag_name))
             print('更新内容({})：\n{}'.format(
                 "{:%Y-%m-%d}".format(repo.get_latest_release().published_at),
                 repo.get_latest_release().body
@@ -37,6 +37,6 @@ def update():
             for item in repo.get_latest_release().assets:
                 print('{} : {}'.format(item.name, item.browser_download_url))
         else:
-            print('当前已是最新版本')
+            print('\r已是最新版本   ')
     except:
-        print('获取更新失败')
+        print('\r获取更新失败   ')
