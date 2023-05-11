@@ -271,7 +271,7 @@ def auto_login(user_id, password, url, user_agent='pc'):
         internet_connect = internet_connect_status_test(setting_info['internet_quick_test'])
         # 互联网连接异常
         if not internet_connect:
-            print('')
+            spinner = Spinner('\r')
             error('互联网无法连接，执行自动登录操作')
             # 执行登录校园网方法 获取登录状态
             login_status = login(user_id, password, url, user_agent)
