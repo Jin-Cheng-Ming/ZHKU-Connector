@@ -16,6 +16,7 @@ class LoggerHandlerBase(ABC):
     """
     _next_logger = None
     level = None
+    done = None
 
     def set_next_logger(self, next_logger):
         """
@@ -29,10 +30,10 @@ class LoggerHandlerBase(ABC):
         pass
 
     def log_message(self, level: int, message: str):
-        # todo 只输出最高级别的日志?
         if level >= self.level >= log_level:
             self.write(message)
-        if self._next_logger:
+            self.done = True
+        if not self.done and self._next_logger:
             return self._next_logger.log_message(level, message)
 
 
