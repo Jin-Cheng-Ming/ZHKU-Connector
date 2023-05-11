@@ -146,14 +146,11 @@ def connect_status_test(host_name: str):
     :param host_name: 主机名
     :return: 连接状态：为0时，网络连接正常；为1时，网络连接失败
     """
-    command = ''
     debug('执行检测连接命令……')
-    if platform.system() == 'Windows':
-        command = 'ping -n 2 %s' % host_name
-    elif platform.system() == 'Linux':
-        command = 'ping -c 2 %s' % host_name
-    debug(f'> {command}')
-    network_state = subprocess.run(command, stdout=subprocess.PIPE, shell=True).returncode
+    ping_command = {'Windows': 'ping -n 2 %s' % host_name,
+                    'Linux': 'ping -c 2 %s' % host_name}
+    debug(f'> {ping_command[platform.system()]}')
+    network_state = subprocess.run(ping_command[platform.system()], stdout=subprocess.PIPE, shell=True).returncode
     if network_state == 0:
         debug('执行结果：连接正常')
         return True
@@ -258,7 +255,7 @@ def login(user_id, password, url, user_agent='pc'):
         # 获取登录结果信息
         for error_msg in doc('#errMessage').items():
             # 通过value属性取出错误信息
-            info(error_msg.attr('value'))
+            info(colored(error_msg.attr('value'), on_color="on_dark_grey"))
         return login_result_status
     except:
         error('网络连接失败')
