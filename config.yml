@@ -1,5 +1,9 @@
+current_version: 1.7.2
+log_level: info
+printable: False
 app_id: 315799
 installation_id: 36277396
-current_version: 1.7.1
-printable: False
-log_level: info
+internet_host_list:
+  - www.zhku.edu.cn
+  - baidu.com
+  - douyin.com
