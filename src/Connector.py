@@ -165,8 +165,7 @@ def internet_connect_status_test(internet_quick_test: bool = True):
     :param: internet_quick_test: 是否快速互联网连接测试
     :return: 是否有互联网连接
     """
-    internet_host_list = ['www.zhku.edu.cn', 'baidu.com', 'douyin.com']
-
+    internet_host_list = config['internet_host_list']
     debug('检测是否有互联网连接……')
     if internet_quick_test:
         host = random.choice(internet_host_list)
@@ -265,6 +264,7 @@ def login(user_id, password, url, user_agent='pc'):
 def auto_login(user_id, password, url, user_agent='pc'):
     spinner = Spinner(info('持续监测中 ', printable))
     while True:
+        # FIXME Debug输出有问题
         internet_connect = internet_connect_status_test(setting_info['internet_quick_test'])
         # 互联网连接异常
         if not internet_connect:
