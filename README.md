@@ -2,17 +2,21 @@
 
 一个简单的仲恺农业工程学院校园网自动登录助手，还能在检测到失去互联网连接时自动登录。
 
+![使用界面](img/img.png)
+
 ## ✨快速开始
 
 下载打包好的应用程序直接运行即可
 
-| 平台      | 下载                                                                                                                 |
-|---------|--------------------------------------------------------------------------------------------------------------------|
-| Windows | [1.7.1](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.1/ZHKU-Connector-windows-1.7.1.exe) |
-| Linux   | [1.7.1](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.1/ZHKU-Connector-linux-1.7.1)       |
-| mac     |                                                                                                                    |
+| 平台      | 下载                                                                                                                 | MD5                              |
+|---------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
+| Windows | [1.7.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.2/ZHKU-Connector-windows-1.7.1.exe) | 5e1466c0e71ec24c6d95827f91fe2e44 |
+| Linux   | [1.7.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.2/ZHKU-Connector-linux-1.7.2)       | ef5ae67fb884edd164eee935b3f6b918 |
+| mac     |                                                                                                                    |                                  |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。
+> 在Windows的终端使用`certutil -hashfile ZHKU-Connector-windows-1.7.2.exe MD5`可以获取文件哈希值。
+> 在Linux的终端中使用`md5sum ZHKU-Connector-linux-1.7.2`可以获取文件哈希值。
 
 ## 🚧启动之前的环境搭建
 
@@ -80,6 +84,7 @@ screen
 
 创建screen终端之后就可以再这个界面里面像上面一样的操作运行自动连接的程序。
 当关闭shell终端之后，自动连接程序后台仍然保持运行。
+也可以通过`ctrl`+`A` `D` 的快捷键离开（后台保持运行）。
 通过如下命令来重新连接screen
 
 ```shell
