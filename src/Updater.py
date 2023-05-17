@@ -1,14 +1,10 @@
 import yaml  # 用于加载配置
-from Utils import get_resource  # 用于获取静态资源
+from Utils import get_resource, get_config  # 用于获取静态资源
 from github import Github  # 从GitHub仓库中获取更新
 from github import AppAuthentication  # 从GitHub仓库中获取更新
 
-with open(get_resource('config.yml'), 'r', encoding='utf-8') as f:
-    config = yaml.load(f.read(), Loader=yaml.FullLoader)
-with open(get_resource('zhku-connector.private-key.pem')) as private_key_file:
-    private_key = private_key_file.read()
-
 # 当前版本
+config = get_config()
 current_version = config['current_version']
 
 
@@ -20,6 +16,8 @@ def set_current_version(version: str):
 def fetch():
     print('\r正在检查更新...', end='')
     try:
+        with open(get_resource('zhku-connector.private-key.pem')) as private_key_file:
+            private_key = private_key_file.read()
         # 创建一个实例
         authentication = AppAuthentication(app_id=config['app_id'],
                                            private_key=private_key,
