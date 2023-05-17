@@ -9,20 +9,11 @@ import random  # 用于计算随机数
 import platform  # 用于查看系统属于哪个平台
 from progress.spinner import Spinner  # 用于说明检测状态
 import os  # 用于暂停程序，打开/删除文件
-from Utils import get_resource  # 用于获取静态资源
+from Utils import get_resource, get_remembered_credentials, remember, remove  # 用于获取或保存静态资源
 from termcolor import cprint, colored  # 用于使输出的字符附带颜色的样式
 from LoggerHandler import debug, info, error  # 日志
 import Updater  # 用于获取程序更新信息
-import pickle  # 用户持久化文件
 import func_timeout  # 用户等待用户输入
-
-network_credentials_file_name = 'network_credentials.pkl'
-network_credentials_file_path = os.path.expanduser('~') + os.sep + network_credentials_file_name
-try:
-    with open(network_credentials_file_path, 'rb') as f:
-        credentials = pickle.load(f)
-except:
-    credentials = None
 
 with open(get_resource('config.yml'), 'r', encoding='utf-8') as f:
     config = yaml.load(f.read(), Loader=yaml.FullLoader)
@@ -318,25 +309,20 @@ def login_info_input():
     return i_user, i_setting
 
 
-def remember(i_user: dict, i_setting: dict):
-    """
-    记住登录信息，包括用户ID和密码，还有登录的功能设置
-    """
+def remember_me():
     info('是否记住登录信息，下次可以自动加载登录。')
-    is_remember_input = input(info('记住登录信息吗？ （Y-默认/N）：', printable))
-    # 如果输入n，则不保存信息，其余情况默认保存
-    try:
-        if len(is_remember_input) > 0 and any(res in is_remember_input for res in ['n', 'N']):
-            # 删除保存的信息，没有的
-            resource = get_resource(network_credentials_file_name)
-            os.remove(resource)
+    is_remember_input = input(info('记住登录信息吗？ （Y/N）：', printable))
+    is_remember_login = len(is_remember_input) == 0 or any(res in is_remember_input for res in ['y', 'Y'])
+    if is_remember_login:
+        if remember(login_info, setting_info):
+            info('登录信息已在本地记录，下次启动程序可以自动登录')
+        else:
+            error('保存失败，请稍后重试')
+    else:
+        if remove():
             info('好的，下次启动程序不会自动登录')
         else:
-            with open(network_credentials_file_path, 'wb') as f:
-                pickle.dump({'login_info': i_user, 'setting_info': i_setting}, f)
-            info('已保存本地，下次启动程序可以自动登录')
-    except:
-        pass
+            error('删除失败，请稍后重试')
 
 
 if __name__ == '__main__':
@@ -344,13 +330,14 @@ if __name__ == '__main__':
     # 获取更新
     Updater.fetch()
     # 获取本地记录，如果有则在等待一定时间过后自动使用
+    credentials = get_remembered_credentials()
     is_remember = None
-    if credentials:
+    if get_remembered_credentials:
         try:
             is_remember = ask_is_edit_login_info()
         except:
             # 回车中断，使用新的自定义登录
-            print('\n没有等到你的输入，默认使用上次的登录配置')  # 因为已经保存了，不用再使用记住操作
+            print('\n没有等到你的输入，默认使用上次的登录配置')
             is_remember = 'use_last'
         if is_remember != 'use_last':
             login_info, setting_info = login_info_input()
@@ -388,7 +375,7 @@ if __name__ == '__main__':
 
     info('账号登录正常')
     if is_remember != 'use_last':
-        remember(login_info, setting_info)
+        remember_me()
 
     if not setting_info['auto_login']:
         error('该设备已登录')
@@ -396,8 +383,9 @@ if __name__ == '__main__':
 
     # 后台持续监测
     info('该账号将用于自动登录')
-    if credentials:
+    if is_remember == 'use_last':
         info("持续监测互联网连接状态")
     else:
         input(info("持续监测互联网连接状态，请按任意键确认...", printable))
+
     auto_login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
