@@ -257,7 +257,7 @@ def login(user_id, password, url, user_agent='pc'):
             info(colored(error_msg.attr('value'), on_color="on_dark_grey"))
         return login_result_status
     except:
-        error('网络连接失败')
+        error('校园网登录请求解析失败')
         return False
 
 
@@ -342,17 +342,17 @@ def remember(i_user: dict, i_setting: dict):
 if __name__ == '__main__':
     welcome()
     # 获取更新
-    Updater.update()
+    Updater.fetch()
     # 获取本地记录，如果有则在等待一定时间过后自动使用
-    is_update = None
+    is_remember = None
     if credentials:
         try:
-            is_update = ask_is_edit_login_info()
+            is_remember = ask_is_edit_login_info()
         except:
             # 回车中断，使用新的自定义登录
             print('\n没有等到你的输入，默认使用上次的登录配置')  # 因为已经保存了，不用再使用记住操作
-            is_update = 'use_last'
-        if is_update != 'use_last':
+            is_remember = 'use_last'
+        if is_remember != 'use_last':
             login_info, setting_info = login_info_input()
         else:
             login_info = credentials['login_info']
@@ -369,30 +369,35 @@ if __name__ == '__main__':
         f'登录地址{"访问正常" if login_connect else "无法连接"}，互联网{"访问正常" if internet_connect else "无法连接"}'
     )
 
-    if login_connect:
-        # 登录地址正常访问，检测账号是否可以正常登录，并检测互联网连接
-        info('登录地址访问正常，检测账号能否正常登录……')
-        # fixme 之前已经认证登录了，再使用不正确的账号密码会提示账号登录正常的错误
-        # 设置账号登录状态
-        login_status = login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
-        if is_login(login_status):
-            info('账号登录正常')
-            if is_update != 'use_last':
-                remember(login_info, setting_info)
-            if setting_info['auto_login']:
-                # 后台持续监测
-                info('该账号将用于自动登录')
-                if credentials:
-                    info("持续监测互联网连接状态")
-                else:
-                    input(info("持续监测互联网连接状态，请按任意键确认...", printable))
-                auto_login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
-            else:
-                error('该设备已登录')
-        else:
-            error('登录失败，请检查账号信息是否正确，再重启程序试试？')
-    else:
-        # 登录地址无法连接，提示接入校园网
-        error('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
+    if not login_connect:
+        while not login_connect:
+            # 登录地址无法连接，提示接入校园网
+            error('登录地址访问失败，请检查校园网连接状态并输入正确的登录地址')
+            login_info = info_input()
+            login_url = f"http://{login_info['hostname']}"
+            info('登录地址检测......')
+            login_connect = login_address_connect_status_test(login_url)
 
-    exit_with_confirmation()
+    login_status = login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
+    if not is_login(login_status):
+        while not is_login(login_status):
+            error('登录失败，请检查登录信息是否正确')
+            login_info = info_input()
+            login_url = f"http://{login_info['hostname']}"
+            login_status = login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])
+
+    info('账号登录正常')
+    if is_remember != 'use_last':
+        remember(login_info, setting_info)
+
+    if not setting_info['auto_login']:
+        error('该设备已登录')
+        exit_with_confirmation()
+
+    # 后台持续监测
+    info('该账号将用于自动登录')
+    if credentials:
+        info("持续监测互联网连接状态")
+    else:
+        input(info("持续监测互联网连接状态，请按任意键确认...", printable))
+    auto_login(login_info['user_id'], login_info['password'], login_url, setting_info['user_agent'])

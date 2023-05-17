@@ -17,7 +17,7 @@ def set_current_version(version: str):
     current_version = version
 
 
-def update():
+def fetch():
     print('\r正在检查更新...', end='')
     try:
         # 创建一个实例
