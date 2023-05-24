@@ -8,15 +8,15 @@
 
 下载打包好的应用程序直接运行即可
 
-| 平台      | 下载                                                                                                                 | MD5                              |
-|---------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| Windows | [1.7.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.2/ZHKU-Connector-windows-1.7.1.exe) | 5e1466c0e71ec24c6d95827f91fe2e44 |
-| Linux   | [1.7.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.2/ZHKU-Connector-linux-1.7.2)       | ef5ae67fb884edd164eee935b3f6b918 |
-| mac     |                                                                                                                    |                                  |
+| 平台      | 下载                                                                                                                 | MD5                                      |
+|---------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------|
+| Windows | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-windows-1.7.3.exe) | 4c1095ac9298ecd438e3deed4b0ee9feb177c8f6 |
+| Linux   | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-linux-1.7.3)       | 76dade9f4f34b487610ae3f29daf3ffc8f79f0a4 |
+| mac     |                                                                                                                    |                                          |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。
-> 在Windows的终端使用`certutil -hashfile ZHKU-Connector-windows-1.7.2.exe MD5`可以获取文件哈希值。
-> 在Linux的终端中使用`md5sum ZHKU-Connector-linux-1.7.2`可以获取文件哈希值。
+> 在Windows的终端使用`certutil -hashfile ZHKU-Connector-windows-1.7.3.exe MD5`可以获取文件哈希值。
+> 在Linux的终端中使用`md5sum ZHKU-Connector-linux-1.7.3`可以获取文件哈希值。
 
 ## 🚧启动之前的环境搭建
 
