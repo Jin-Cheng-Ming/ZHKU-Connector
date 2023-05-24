@@ -10,8 +10,8 @@
 
 | 平台      | 下载                                                                                                                 | MD5                                      |
 |---------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------|
-| Windows | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-windows-1.7.3.exe) | 4c1095ac9298ecd438e3deed4b0ee9feb177c8f6 |
-| Linux   | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-linux-1.7.3)       | 76dade9f4f34b487610ae3f29daf3ffc8f79f0a4 |
+| Windows | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-windows-1.7.3.exe) | d6f18d3c2dc7795bbc1fb86d75efeffb7a00a672 |
+| Linux   | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-linux-1.7.3)       | 01dfe6d57d3ceb172e12ec57d4269c6b         |
 | mac     |                                                                                                                    |                                          |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。
