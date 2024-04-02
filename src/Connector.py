@@ -33,7 +33,7 @@ def welcome():
     ''', 'green')
     cprint(f'''
     - github: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
-    - last update: 2023-05
+    - last update: 2024-04
     ''', 'dark_grey')
 
 
