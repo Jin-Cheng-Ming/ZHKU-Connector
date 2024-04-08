@@ -8,15 +8,15 @@
 
 下载打包好的应用程序直接运行即可
 
-| 平台      | 下载                                                                                                                 | MD5                                      |
-|---------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------|
-| Windows | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-windows-1.7.3.exe) | d6f18d3c2dc7795bbc1fb86d75efeffb7a00a672 |
-| Linux   | [1.7.3](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.3/ZHKU-Connector-linux-1.7.3)       | 01dfe6d57d3ceb172e12ec57d4269c6b         |
-| mac     |                                                                                                                    |                                          |
+| 平台      | 下载                                                                                                                 | MD5                              |
+|---------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
+| Windows | [1.7.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.4/ZHKU-Connector-windows-1.7.4.exe) | cdffbbf890c724a89673baf716b44a1f |
+| Linux   | [1.7.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.4/ZHKU-Connector-Linux-1.7.4)       | 33abe6e0718d6434197ed3b248a4efa3 |
+| Mac     | 我没有苹果的设备搞不了                                                                                                        | 暂无                               |
 
-> Linux需要将下载的文件设置为可执行文件，并在终端中运行。
-> 在Windows的终端使用`certutil -hashfile ZHKU-Connector-windows-1.7.3.exe MD5`可以获取文件哈希值。
-> 在Linux的终端中使用`md5sum ZHKU-Connector-linux-1.7.3`可以获取文件哈希值。
+> Linux需要将下载的文件设置为可执行文件，并在终端中运行。如：`chmod +x ZHKU-Connector-Linux-1.x.x`
+> 在Windows的终端使用`certutil -hashfile <文件名> MD5`可以获取文件哈希值。
+> 在Linux的终端中使用`md5sum <文件名>`可以获取文件哈希值。
 
 ## 🚧启动之前的环境搭建
 
@@ -62,16 +62,6 @@ python3 ./src/Connector.py
 chmod +x <文件名>
 ```
 
-~~也可以通过login文件运行：给login赋权后，就可以通过更简单的命令来运行了。
-注意，如果环境是python3，那么需要将login里面的命令python改为python3~~
-
-> 待更新
-
-```shell
-chmod 777 ./login # 赋权
-./login # 启动
-```
-
 ## ☘️保持后台运行
 
 ### Linux
@@ -93,11 +83,7 @@ screen -r
 
 ### Windows
 
-> 待更新
-
-```shell
-
-```
+> Windows的CMD不支持当前部分依赖库的日志颜色打印，建议使用Powershell或其他更现代的终端运行。也可以在微软商店中下载微软公司开发的“终端”，这里面有设置可以隐藏到状态栏
 
 ## 🌞退出
 
