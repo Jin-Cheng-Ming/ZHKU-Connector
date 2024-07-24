@@ -1,4 +1,8 @@
-current_version: 1.7.4
+current_version: 1.8.0
+last_update: 2024-07
+home_page: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
+detect_captive_portal_url: http://www.gstatic.com/generate_204
+login_page: http://1.1.1.1:8888/webauth.do?wlanacname=zax_hzoffice
 log_level: info
 printable: False
 app_id: 315799

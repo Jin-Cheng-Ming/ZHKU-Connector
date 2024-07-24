@@ -22,7 +22,7 @@ def fetch():
         authentication = AppAuthentication(app_id=config['app_id'],
                                            private_key=private_key,
                                            installation_id=config['installation_id'])
-        instance = Github(app_auth=authentication)
+        instance = Github(app_auth=authentication, timeout=6)
         repo = instance.get_repo("Jin-Cheng-Ming/ZHKU-Connector")
         # 获取项目仓库:
         if repo.get_latest_release().tag_name > current_version:
