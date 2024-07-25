@@ -129,7 +129,8 @@ class Connector:
         :return: 是否登录地址连接正常
         """
         debug('检测登录地址是否连接正常……')
-        if self.detect_captive_portal():
+        portal = self.detect_captive_portal()
+        if portal is True or portal is None:
             debug('登录地址获取成功')
             debug(f'强制登录页为：{self.captive_portal}')
             return True
@@ -262,7 +263,8 @@ class Connector:
         self.agent = setting_info['user_agent']
 
         # 网络情况检查
-        if requests.get(self.detect_captive_portal_url, allow_redirects=False).status_code != 204:
+        code = requests.get(self.detect_captive_portal_url, allow_redirects=False).status_code
+        if code is not None and code != 204:
             info("未连接到互联网，检测登录主页中......")
             login_address_connect = self.login_address_connect_status_test()
             while not login_address_connect:
