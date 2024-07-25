@@ -241,7 +241,6 @@ class Connector:
         # 更新
         Updater.fetch()
         # 获取本地记录，如果有则在等待一定时间过后自动使用
-        # 获取本地记录，如果有则在等待一定时间过后自动使用
         credentials = get_remembered_credentials()
         if credentials:
             try:

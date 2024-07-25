@@ -9,7 +9,7 @@
 - 账号认证登录
 - 记住账号
 - 互联网连接状态监测与自动登录
-- 代理选择（电脑/手机）
+- 用户代理选择（电脑/手机）
 - 多系统兼容（Windows/Linux/Mac）
 - 内存占用低
 
@@ -26,8 +26,8 @@
 
 | 平台      | 下载                                                                                                                 | MD5                              |
 |---------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| Windows | [1.7.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.4/ZHKU-Connector-windows-1.7.4.exe) | cdffbbf890c724a89673baf716b44a1f |
-| Linux   | [1.7.4](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.7.4/ZHKU-Connector-Linux-1.7.4)       | 33abe6e0718d6434197ed3b248a4efa3 |
+| Windows | [1.8.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.0/ZHKU-Connector-windows-1.8.0.exe) | a87e94eed0e05e9b07309ffcb60df287 |
+| Linux   | [1.8.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.0/ZHKU-Connector-Linux-1.8.0)       | 193343d32dcff205081277e04cba3005 |
 | Mac     | 我没有苹果的设备搞不了                                                                                                        | 暂无                               |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。如：`chmod +x ZHKU-Connector-Linux-1.x.x`
