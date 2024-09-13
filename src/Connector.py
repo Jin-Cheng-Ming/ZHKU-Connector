@@ -1,4 +1,5 @@
 # Distributed under the MIT license, see LICENSE
+import os # 用于程序暂停
 import requests  # 用于向网页发送post请求
 from pyquery import PyQuery  # 用于解析数据
 import time  # 用于设置延时
@@ -238,8 +239,12 @@ class Connector:
     def run(self):
         # 欢迎
         self.print_welcome_banner()
-        # 更新
-        Updater.fetch()
+        try:
+            code = requests.get(self.detect_captive_portal_url, allow_redirects=False).status_code
+        except:
+            error('无网络连接，请检查网络连接状态后重试')
+            os.system("pause")
+            return
         # 获取本地记录，如果有则在等待一定时间过后自动使用
         credentials = get_remembered_credentials()
         if credentials:
@@ -262,7 +267,6 @@ class Connector:
         self.agent = setting_info['user_agent']
 
         # 网络情况检查
-        code = requests.get(self.detect_captive_portal_url, allow_redirects=False).status_code
         if code is not None and code != 204:
             info("未连接到互联网，检测登录主页中......")
             login_address_connect = self.login_address_connect_status_test()
@@ -279,6 +283,8 @@ class Connector:
         info('账号登录正常')
         if self.remember != 'use_last':
             self.remember_me()
+        # 更新
+        Updater.fetch()
 
         self.auto_login()
 
