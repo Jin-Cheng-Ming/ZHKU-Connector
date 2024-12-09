@@ -24,11 +24,11 @@
 
 下载打包好的应用程序直接运行即可
 
-| 平台      | 下载                                                                                                                 | MD5                              |
-|---------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| Windows | [1.8.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.2/ZHKU-Connector-windows-1.8.2.exe) | fde6a8f82aaa9a9e5af02b5c3790ea82 |
-| Linux   | [1.8.0](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.0/ZHKU-Connector-Linux-1.8.0)       | 193343d32dcff205081277e04cba3005 |
-| Mac     |    暂无                                                                                                            |                                |
+| 平台               | 下载                                                                                                               | MD5                              |
+|--------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
+| Windows            | [1.8.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.2/ZHKU-Connector-windows-1.8.2.exe) | fde6a8f82aaa9a9e5af02b5c3790ea82 |
+| Linux(Ubuntu22.04) | [1.8.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.2/ZHKU-Connector-linux-1.8.2)       | 13b5230871931731c6db63f9634778da |
+| Mac                |   暂无                                                                                                             |                                  |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。如：`chmod +x ZHKU-Connector-Linux-1.x.x`
 > 在Windows的终端使用`certutil -hashfile <文件名> MD5`可以获取文件哈希值。
