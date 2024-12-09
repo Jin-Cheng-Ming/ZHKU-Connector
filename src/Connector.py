@@ -76,27 +76,19 @@ class Connector:
             return None
 
     def setting_input(self):
-        agent_input = input(info('请设置登录的用户代理方式  1）个人电脑-默认  2）移动设备：', self.printable))
+        agent_input = input(info('请设置登录的浏览器设备  1）个人电脑-默认  2）移动设备：', self.printable))
         if len(agent_input) == 0:
-            agent = 'pc'
+            self.agent = 'pc'
             info('默认以个人电脑端登录')
         else:
             while len(agent_input) > 1 or not agent_input.isdigit():
                 agent_input = input(info('设置代理有误，请重新选择  1）个人电脑-默认  2）移动设备：', self.printable))
             if agent_input == '2':
                 info('将使用移动设备端登录')
-                agent = 'mobile'
+                self.agent = 'mobile'
             else:
                 info('将使用个人电脑端登录')
-                agent = 'pc'
-
-        # auto_login_input = input(info('是否开启账号自动登录：Y）开启-默认  N）关闭：', self.printable))
-        # if len(auto_login_input) > 0 and any(res in auto_login_input for res in ['n', 'N']):
-        #     info('取消账号自动登录')
-        #     self.is_auto_login = False
-        # else:
-        #     info('开启账号自动登录')
-        #     self.is_auto_login = True
+                self.agent = 'pc'
 
     def account_input(self):
         """ 设置登录相关信息
