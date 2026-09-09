@@ -6,7 +6,28 @@ import re
 import socket
 import time
 import getpass
-from progress.spinner import Spinner
+
+# 兼容打包环境的 spinner 导入
+try:
+    from progress.spinner import Spinner
+except (ImportError, ModuleNotFoundError):
+    # 简单的 spinner 替代实现
+    class Spinner:
+        def __init__(self, message, **kwargs):
+            self.message = message
+            self.index = 0
+            self.chars = ['|', '/', '-', '\\']
+            self._printed = False
+            
+        def next(self):
+            self.index = (self.index + 1) % len(self.chars)
+            print(f'\r{self.message}{self.chars[self.index]}', end='', flush=True)
+            self._printed = True
+            
+        def __del__(self):
+            if self._printed:
+                print()
+
 from Utils import *
 from termcolor import cprint, colored
 from LoggerHandler import debug, info, error
@@ -38,13 +59,11 @@ def _is_virtual_ip(ip: str) -> bool:
     """判断是否为代理/虚拟网卡等不可用于校园网认证的 IP"""
     if not ip:
         return True
-    # Mihomo/Clash 等代理常用 198.18.0.0/15
     parts = ip.split('.')
     try:
         a, b = int(parts[0]), int(parts[1])
     except (ValueError, IndexError):
         return True
-    # 127.0.0.0/8、169.254.0.0/16、198.18.0.0/15、100.64.0.0/10 (CGNAT)
     if a == 127 or a == 169 or a == 198 or a == 100:
         return True
     return False
@@ -115,13 +134,7 @@ class Connector:
         ''', 'dark_grey')
 
     def get_local_ip(self):
-        """获取本机用于校园网认证的内网 IP
-
-        在开了代理/热点等复杂网络环境下，不能简单地“连 8.8.8.8 取源 IP”，
-        那会误拿到代理或虚拟网卡的 IP，导致 wlan_user_ip 错误。
-        这里枚举本机所有内网网卡 IP，并逐个测试能否直达认证服务器(AC)，
-        能直达的那个才是真正用于校园网认证的 IP。
-        """
+        """获取本机用于校园网认证的内网 IP"""
         ac_host = None
         try:
             ac_host = self.drcom_base_url.split('://')[1].split(':')[0]
@@ -129,7 +142,6 @@ class Connector:
             pass
 
         def _can_reach(src_ip: str, dst_host: str, dst_port: int) -> bool:
-            """以 src_ip 为源地址，测试能否建立到 dst_host:dst_port 的连接"""
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.bind((src_ip, 0))
@@ -142,7 +154,6 @@ class Connector:
 
         candidates = []
         try:
-            # 枚举本机所有 IPv4 接口
             hostname = socket.gethostname()
             for info in socket.getaddrinfo(hostname, None, socket.AF_INET):
                 ip = info[4][0]
@@ -150,7 +161,6 @@ class Connector:
                     candidates.append(ip)
         except Exception:
             pass
-        # Windows 下 getaddrinfo 可能枚举不全，再补一次 ipconfig 解析
         try:
             ip = _detect_private_ip_from_ifconfig()
             if ip and ip not in candidates:
@@ -158,17 +168,14 @@ class Connector:
         except Exception:
             pass
 
-        # 1) 优先返回能直达认证服务器的 IP（校园网网卡）
         if ac_host:
             for ip in candidates:
                 if _can_reach(ip, ac_host, 801):
                     return ip
-            # 若 801 连不通，也尝试 AC 的 80 端口
             for ip in candidates:
                 if _can_reach(ip, ac_host, 80):
                     return ip
 
-        # 2) 回退：能出公网的私网 IP（排除代理虚拟网段后）
         for ip in candidates:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -180,7 +187,6 @@ class Connector:
             except Exception:
                 continue
 
-        # 3) 实在不行返回第一个候选，或 None
         return candidates[0] if candidates else None
 
     def detect_captive_portal(self):
@@ -244,12 +250,7 @@ class Connector:
             return False
 
     def _account_prefix(self) -> str:
-        """返回 Dr.COM 账号前缀
-
-        据门户 a43.js 源码：PC 用 ',0,'，手机用 ',1,'（term.type==2 为手机）。
-        程序早期把所有设备都写成 ',0,'，导致即使选择“移动设备”，
-        服务器仍按 PC 记录终端类型。
-        """
+        """返回 Dr.COM 账号前缀"""
         return ",1," if self.agent == 'mobile' else ",0,"
 
     def drcom_logout(self):
@@ -291,7 +292,6 @@ class Connector:
 
         info(colored(f'[{self.user_id}]', 'light_cyan') + '正在登录中……')
         
-        # 根据设备类型动态设置 terminal_type
         terminal_type = "2" if self.agent == 'mobile' else "1"
         
         params = {
@@ -455,7 +455,7 @@ class Connector:
         if self.remember != 'use_last':
             self.remember_me()
         
-        Updater.fetch()
+        #Updater.fetch()
 
         self.auto_login()
 

@@ -25,8 +25,8 @@
 
 | 平台               | 下载                                                                                                               | MD5                              |
 |--------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| Windows            | [2.0.0](更新中) | fde6a8f82aaa9a9e5af02b5c3790ea82 |
-| Linux(Ubuntu22.04) | [2.0.0](更新中)       | 13b5230871931731c6db63f9634778da |
+| Windows            | [2.0.0](https://github.com/jared955/ZHKU-Connector/releases/download/2.0.0/ZHKU-Connector-windows-2.0.0.exe) | 13fe93c738ebb1b46d70e086b4576245 |
+| Linux(Ubuntu22.04) | 暂无       |  |
 | Mac                |   暂无                                                                                                             |                                  |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。如：`chmod +x ZHKU-Connector-Linux-1.x.x`
