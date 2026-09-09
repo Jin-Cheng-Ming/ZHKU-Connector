@@ -2,7 +2,6 @@
 
 一个简单的仲恺农业工程学院校园网自动登录助手，还能在检测到失去互联网连接时自动登录。
 
-![使用界面](img/img.png)
 
 功能与特性：
 
@@ -26,8 +25,8 @@
 
 | 平台               | 下载                                                                                                               | MD5                              |
 |--------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| Windows            | [1.8.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.2/ZHKU-Connector-windows-1.8.2.exe) | fde6a8f82aaa9a9e5af02b5c3790ea82 |
-| Linux(Ubuntu22.04) | [1.8.2](https://github.com/Jin-Cheng-Ming/ZHKU-Connector/releases/download/1.8.2/ZHKU-Connector-linux-1.8.2)       | 13b5230871931731c6db63f9634778da |
+| Windows            | [2.0.0](更新中) | fde6a8f82aaa9a9e5af02b5c3790ea82 |
+| Linux(Ubuntu22.04) | [2.0.0](更新中)       | 13b5230871931731c6db63f9634778da |
 | Mac                |   暂无                                                                                                             |                                  |
 
 > Linux需要将下载的文件设置为可执行文件，并在终端中运行。如：`chmod +x ZHKU-Connector-Linux-1.x.x`

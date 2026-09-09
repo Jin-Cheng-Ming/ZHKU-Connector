@@ -1,12 +1,13 @@
-current_version: 1.8.2
-last_update: 2024-12
-home_page: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
+current_version: 2.0.0
+last_update: 2026-09
+home_page: https://github.com/jared955/ZHKU-Connector
 detect_captive_portal_url: http://www.gstatic.com/generate_204
-login_page: http://1.1.1.1:8888/webauth.do?wlanacname=zax_hzoffice
+# 注意：这个地址改为你们的 Dr.COM 认证页面地址
+login_page: http://211.97.5.4:801
 log_level: info
 printable: False
-app_id: 315799
-installation_id: 36277396
+app_id: 4880838
+installation_id: 160223598
 internet_host_list:
   - baidu.com
   - douyin.com

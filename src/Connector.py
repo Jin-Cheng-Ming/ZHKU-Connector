@@ -1,79 +1,198 @@
 # Distributed under the MIT license, see LICENSE
-import os # 用于程序暂停
-import requests  # 用于向网页发送post请求
-from pyquery import PyQuery  # 用于解析数据
-import time  # 用于设置延时
-import getpass  # 用于避免密码的直接输出
-from progress.spinner import Spinner  # 用于说明检测状态
-from Utils import *  # 用于获取或保存静态资源
-from termcolor import cprint, colored  # 用于使输出的字符附带颜色的样式
-from LoggerHandler import debug, info, error  # 日志
-import Updater  # 用于获取程序更新信息
-import func_timeout  # 用户等待用户输入
+import os
+import requests
+import json
+import re
+import socket
+import time
+import getpass
+from progress.spinner import Spinner
+from Utils import *
+from termcolor import cprint, colored
+from LoggerHandler import debug, info, error
+import Updater
+import func_timeout
+
+
+def _is_private_ip(ip: str) -> bool:
+    """判断是否为内网 IP（校园网通常为 10./172.16-31./192.168.）"""
+    if not ip:
+        return False
+    parts = ip.split('.')
+    if len(parts) != 4:
+        return False
+    try:
+        a, b = int(parts[0]), int(parts[1])
+    except ValueError:
+        return False
+    if a == 10:
+        return True
+    if a == 172 and 16 <= b <= 31:
+        return True
+    if a == 192 and b == 168:
+        return True
+    return False
+
+
+def _is_virtual_ip(ip: str) -> bool:
+    """判断是否为代理/虚拟网卡等不可用于校园网认证的 IP"""
+    if not ip:
+        return True
+    # Mihomo/Clash 等代理常用 198.18.0.0/15
+    parts = ip.split('.')
+    try:
+        a, b = int(parts[0]), int(parts[1])
+    except (ValueError, IndexError):
+        return True
+    # 127.0.0.0/8、169.254.0.0/16、198.18.0.0/15、100.64.0.0/10 (CGNAT)
+    if a == 127 or a == 169 or a == 198 or a == 100:
+        return True
+    return False
+
+
+def _detect_private_ip_from_ifconfig() -> str:
+    """通过 ipconfig/ifconfig 枚举网卡，返回第一个内网且非虚拟的 IP"""
+    import subprocess
+    if os.name == 'nt':
+        output = subprocess.check_output('ipconfig', encoding='gbk', errors='ignore')
+        ips = re.findall(r'IPv4 地址[ .]+: (\d+\.\d+\.\d+\.\d+)', output)
+        for ip in ips:
+            if _is_private_ip(ip) and not _is_virtual_ip(ip):
+                return ip
+    else:
+        output = subprocess.check_output('ifconfig', encoding='utf-8', errors='ignore')
+        ips = re.findall(r'inet (\d+\.\d+\.\d+\.\d+)', output)
+        for ip in ips:
+            if _is_private_ip(ip) and not _is_virtual_ip(ip):
+                return ip
+    return None
 
 
 class Connector:
     config = get_config()
     agent_header = {
-        'pc': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0'
-        },
-        'mobile': {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) '
-                          'AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
-        }
+        'pc': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0',
+        'mobile': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) '
+                  'AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
     }
 
     def __init__(self):
         self.printable = Connector.config['printable']
         self.detect_captive_portal_url = Connector.config['detect_captive_portal_url']
-        self.captive_portal = Connector.config['login_page']
+        # Dr.COM 认证服务器地址
+        self.drcom_base_url = "http://211.97.5.4:801"
+        self.drcom_login_url = f"{self.drcom_base_url}/eportal/portal/login"
+        self.drcom_logout_url = f"{self.drcom_base_url}/eportal/portal/logout"
+        self.drcom_query_url = f"{self.drcom_base_url}/eportal/portal/query"
+        # 固定参数（从抓包中获取）
+        self.wlan_ac_ip = "172.30.1.1"
+        self.login_method = "1"
+        self.jsVersion = "4.2"
+        self.terminal_type = "1"
+        self.wlan_user_mac = "000000000000"
+        self.callback = "dr1003"
+        self.v = "10406"
         self.agent = 'pc'
         self.is_auto_login = True
         self.user_id = ''
         self.password = ''
         self.remember = ''
+        self.local_ip = None
 
     @staticmethod
     def print_welcome_banner():
-        """ 启动横幅
-
-        :return: 包含字符画的横幅
-        """
-        cprint(f'''
+        """ 启动横幅 """
+        cprint(r'''
           _________  ____  ____  ___  _____/ /_____  _____
          / ___/ __ \/ __ \/ __ \/ _ \/ ___/ __/ __ \/ ___/
         / /__/ /_/ / / / / / / /  __/ /__/ /_/ /_/ / /    
         \___/\____/_/ /_/_/ /_/\___/\___/\__/\____/_/     
-        ::ZHKU connector::            [version {Connector.config['current_version']}]    
+        ::ZHKU connector::            [version 2.0.0]    
         ''', 'green')
         cprint(f'''
-        - github: {Connector.config['home_page']}
-        - last update: {Connector.config['last_update']}
+        - github: https://github.com/jared955/ZHKU-Connector
+        - last update: 2026-09
         ''', 'dark_grey')
 
-    def detect_captive_portal(self):
-        """
-        尝试访问一个不会返回实际内容的URL，如果网络正常，应该返回204 No Content。
-        如果返回其他状态码或者重定向，可能意味着存在Captive Portal。
-        """
-        try:
-            response = requests.get(self.detect_captive_portal_url, allow_redirects=False)
+    def get_local_ip(self):
+        """获取本机用于校园网认证的内网 IP
 
-            if response.status_code == 204:
-                # 正常情况，没有Captive Portal
-                return False
-            elif response.is_redirect:
-                # 检测到重定向，可能是Captive Portal
-                self.captive_portal = response.headers.get('Location')
+        在开了代理/热点等复杂网络环境下，不能简单地“连 8.8.8.8 取源 IP”，
+        那会误拿到代理或虚拟网卡的 IP，导致 wlan_user_ip 错误。
+        这里枚举本机所有内网网卡 IP，并逐个测试能否直达认证服务器(AC)，
+        能直达的那个才是真正用于校园网认证的 IP。
+        """
+        ac_host = None
+        try:
+            ac_host = self.drcom_base_url.split('://')[1].split(':')[0]
+        except Exception:
+            pass
+
+        def _can_reach(src_ip: str, dst_host: str, dst_port: int) -> bool:
+            """以 src_ip 为源地址，测试能否建立到 dst_host:dst_port 的连接"""
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.bind((src_ip, 0))
+                s.settimeout(2)
+                s.connect((dst_host, dst_port))
+                s.close()
                 return True
+            except Exception:
+                return False
+
+        candidates = []
+        try:
+            # 枚举本机所有 IPv4 接口
+            hostname = socket.gethostname()
+            for info in socket.getaddrinfo(hostname, None, socket.AF_INET):
+                ip = info[4][0]
+                if ip and _is_private_ip(ip) and not _is_virtual_ip(ip) and ip not in candidates:
+                    candidates.append(ip)
+        except Exception:
+            pass
+        # Windows 下 getaddrinfo 可能枚举不全，再补一次 ipconfig 解析
+        try:
+            ip = _detect_private_ip_from_ifconfig()
+            if ip and ip not in candidates:
+                candidates.append(ip)
+        except Exception:
+            pass
+
+        # 1) 优先返回能直达认证服务器的 IP（校园网网卡）
+        if ac_host:
+            for ip in candidates:
+                if _can_reach(ip, ac_host, 801):
+                    return ip
+            # 若 801 连不通，也尝试 AC 的 80 端口
+            for ip in candidates:
+                if _can_reach(ip, ac_host, 80):
+                    return ip
+
+        # 2) 回退：能出公网的私网 IP（排除代理虚拟网段后）
+        for ip in candidates:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.bind((ip, 0))
+                s.settimeout(2)
+                s.connect(('8.8.8.8', 80))
+                s.close()
+                return ip
+            except Exception:
+                continue
+
+        # 3) 实在不行返回第一个候选，或 None
+        return candidates[0] if candidates else None
+
+    def detect_captive_portal(self):
+        """检测是否需要认证"""
+        try:
+            response = requests.get(self.detect_captive_portal_url, allow_redirects=False, timeout=5)
+            if response.status_code == 204:
+                return False
             else:
-                # 其他未知情况
-                return None
-        except requests.RequestException as e:
-            # 网络错误或其他异常
-            print(f"Request error: {e}")
-            return None
+                return True
+        except requests.RequestException:
+            return True
 
     def setting_input(self):
         agent_input = input(info('请设置登录的浏览器设备  1）个人电脑-默认  2）移动设备：', self.printable))
@@ -91,22 +210,15 @@ class Connector:
                 self.agent = 'pc'
 
     def account_input(self):
-        """ 设置登录相关信息
-        包括登录地址，账号和密码
-
-        :return: 登录相关信息。hostname：登录地址；user_id：账号；password：密码；
-        """
-        self.user_id = input(info('请输入账号：', self.printable)),
+        """输入账号和密码"""
+        self.user_id = input(info('请输入账号：', self.printable))
         self.password = getpass.getpass(info('请输入密码：', self.printable))
 
     def login_info_input(self):
-        """
-        输入用户ID和密码，还有登录的功能设置
-        """
+        """输入登录信息"""
         self.account_input()
         self.setting_input()
         i_user = {
-            'hostname': self.captive_portal,
             'user_id': self.user_id,
             'password': self.password
         }
@@ -117,66 +229,130 @@ class Connector:
         return i_user, i_setting
 
     def login_address_connect_status_test(self):
-        """ 检测登录地址是否连接正常
-
-        :return: 是否登录地址连接正常
-        """
+        """检测登录地址是否连接正常"""
         debug('检测登录地址是否连接正常……')
-        portal = self.detect_captive_portal()
-        if portal is True or portal is None:
-            debug('登录地址获取成功')
-            debug(f'强制登录页为：{self.captive_portal}')
-            return True
-        else:
+        try:
+            response = requests.get(self.drcom_base_url, timeout=5)
+            if response.status_code == 200:
+                debug('登录地址获取成功')
+                return True
+            else:
+                debug('登录地址获取失败')
+                return False
+        except:
             debug('登录地址获取失败')
             return False
 
-    def login(self):
-        """ 登录
+    def _account_prefix(self) -> str:
+        """返回 Dr.COM 账号前缀
 
-        :return: 是否登录成功
+        据门户 a43.js 源码：PC 用 ',0,'，手机用 ',1,'（term.type==2 为手机）。
+        程序早期把所有设备都写成 ',0,'，导致即使选择“移动设备”，
+        服务器仍按 PC 记录终端类型。
         """
-        # 请求数据
-        data = {
-            "auth_type": "0",
-            "isBindMac1": "0",
-            "pageid": "1",
-            "templatetype": "1",
-            "listbindmac": "0",
-            "recordmac": "0",
-            "isRemind": "0",
-            "loginTimes": "",
-            "groupId": "",
-            "distoken": "",
-            "echostr": "",
-            "url": self.captive_portal,
-            "isautoauth": "",
-            "notice_pic_float": "/portal/uploads/pc/hb_pay/images/rrs_bg.jpg",
-            "userId": self.user_id,
-            "passwd": self.password,
-            "remInfo": "on"
+        return ",1," if self.agent == 'mobile' else ",0,"
+
+    def drcom_logout(self):
+        """Dr.COM 注销"""
+        if not self.local_ip:
+            self.local_ip = self.get_local_ip()
+        if not self.local_ip:
+            error('无法获取本机 IP')
+            return False
+        
+        params = {
+            "callback": self.callback,
+            "user_account": f"{self._account_prefix()}{self.user_id}",
+            "wlan_user_ip": self.local_ip
         }
-        # 设置登录状态
-        login_result_status = False
-        info(colored(f'[{self.user_id[0]}]', 'light_cyan') + '正在登录中……')
-        login_address = self.captive_portal
+        headers = {
+            "User-Agent": Connector.agent_header[self.agent],
+            "Referer": self.drcom_base_url + "/",
+            "Host": "211.97.5.4:801"
+        }
+        
         try:
-            # 对校园网登录网址发送请求(执行登录操作) 并获取请求到的页面数据
-            res = requests.post(login_address, data=data, headers=Connector.agent_header[self.agent]).text
-            # 使用pyquery初始化数据
-            doc = PyQuery(res)
-            # 获取登录结果状态
-            for act in doc('#act').items():
-                if act.attr('value') == 'LOGINSUCC':
-                    login_result_status = True
-            # 获取登录结果信息
-            for error_msg in doc('#errMessage').items():
-                # 通过value属性取出错误信息
-                info(colored(error_msg.attr('value'), on_color="on_dark_grey"))
-            return login_result_status
-        except:
-            error('登录请求出错，请检查网络环境是否正确')
-            return None
+            response = requests.get(self.drcom_logout_url, params=params, headers=headers, timeout=10)
+            debug(f'注销响应: {response.text}')
+            if "注销成功" in response.text:
+                return True
+            return False
+        except Exception as e:
+            error(f'注销请求失败: {e}')
+            return False
+
+    def login(self):
+        """Dr.COM GET 方式登录"""
+        if not self.local_ip:
+            self.local_ip = self.get_local_ip()
+        if not self.local_ip:
+            error('无法获取本机 IP，请检查网络连接')
+            return False
+
+        info(colored(f'[{self.user_id}]', 'light_cyan') + '正在登录中……')
+        
+        # 根据设备类型动态设置 terminal_type
+        terminal_type = "2" if self.agent == 'mobile' else "1"
+        
+        params = {
+            "callback": self.callback,
+            "login_method": self.login_method,
+            "user_account": f"{self._account_prefix()}{self.user_id}",
+            "user_password": self.password,
+            "wlan_user_ip": self.local_ip,
+            "wlan_user_ipv6": "",
+            "wlan_user_mac": self.wlan_user_mac,
+            "wlan_ac_ip": self.wlan_ac_ip,
+            "wlan_ac_name": "",
+            "jsVersion": self.jsVersion,
+            "terminal_type": terminal_type,
+            "lang": "zh-cn",
+            "v": self.v
+        }
+        
+        headers = {
+            "User-Agent": Connector.agent_header[self.agent],
+            "Referer": self.drcom_base_url + "/",
+            "Host": "211.97.5.4:801",
+            "Accept": "*/*",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Connection": "keep-alive"
+        }
+        
+        try:
+            response = requests.get(self.drcom_login_url, params=params, headers=headers, timeout=10)
+            debug(f'登录响应: {response.text}')
+            
+            jsonp_match = re.search(r'\{.*\}', response.text)
+            if jsonp_match:
+                try:
+                    data = json.loads(jsonp_match.group())
+                    debug(f'解析结果: {data}')
+                    
+                    if data.get('result') == 1:
+                        info('认证成功')
+                        return True
+                    elif data.get('ret_code') == 2 and "已经在线" in data.get('msg', ''):
+                        info('账号已在线，登录成功')
+                        return True
+                    else:
+                        error(data.get('msg', '登录失败，未知错误'))
+                        return False
+                except json.JSONDecodeError:
+                    error('解析响应失败')
+                    return False
+            else:
+                error('响应格式异常')
+                return False
+                
+        except requests.exceptions.Timeout:
+            error('登录请求超时，请检查网络连接')
+            return False
+        except Exception as e:
+            error(f'登录请求出错: {e}')
+            return False
 
     def remember_me(self):
         info('保存登录信息，下次启动程序可以自动登录。')
@@ -185,7 +361,6 @@ class Connector:
         is_remember_login = len(is_remember_input) == 0 or any(res in is_remember_input for res in ['y', 'Y'])
         if is_remember_login:
             login_info = {
-                'hostname': self.captive_portal,
                 'user_id': self.user_id,
                 'password': self.password
             }
@@ -201,49 +376,48 @@ class Connector:
     def auto_login(self):
         spinner = Spinner(info('持续监测中 ', self.printable))
         while True:
-            # 互联网连接异常
             captive = self.detect_captive_portal()
-            if captive or captive is None:
+            if captive:
                 spinner = Spinner('\r')
                 error('强制主页，登录以继续，将执行自动登录')
-                # 执行登录校园网方法 获取登录状态
-                login_status = self.login()
-                if login_status is True:
+                self.drcom_logout()
+                time.sleep(1)
+                if self.login():
                     info('自动登录成功')
                 else:
                     error('自动登录失败')
                 spinner = Spinner(info('持续监测中 ', self.printable))
-            # 间隔5秒执行监测
             for i in range(5):
                 spinner.next()
                 time.sleep(1)
 
     @func_timeout.func_set_timeout(5)
     def ask_is_edit_login_info(self, credentials):
-        """
-        设置5秒内没有输入的话加载配置
-        """
-
         return input('保存有登录信息'
-                     + colored(f'[{credentials["login_info"]["user_id"][0]}]', 'light_cyan')
+                     + colored(f'[{credentials["login_info"]["user_id"]}]', 'light_cyan')
                      + '，5秒后加载这个配置（回车清除记录）')
 
     def run(self):
-        # 欢迎
         self.print_welcome_banner()
-        try:
-            code = requests.get(self.detect_captive_portal_url, allow_redirects=False).status_code
-        except:
-            error('无网络连接，请检查网络连接状态后重试')
+        
+        self.local_ip = self.get_local_ip()
+        if self.local_ip:
+            debug(f'本机 IP: {self.local_ip}')
+        else:
+            error('无法获取本机 IP，请检查网络连接')
             os.system("pause")
             return
-        # 获取本地记录，如果有则在等待一定时间过后自动使用
+        
+        try:
+            code = requests.get(self.detect_captive_portal_url, allow_redirects=False, timeout=5).status_code
+        except:
+            code = None
+        
         credentials = get_remembered_credentials()
         if credentials:
             try:
                 self.remember = self.ask_is_edit_login_info(credentials)
             except:
-                # 回车中断，使用新的自定义登录
                 print('\n没有输入，默认使用上次的登录配置')
                 self.remember = 'use_last'
             if self.remember != 'use_last':
@@ -254,28 +428,33 @@ class Connector:
                 login_info, setting_info = credentials['login_info'], credentials['setting_info']
         else:
             login_info, setting_info = self.login_info_input()
+        
         self.user_id = login_info['user_id']
         self.password = login_info['password']
         self.agent = setting_info['user_agent']
 
-        # 网络情况检查
         if code is not None and code != 204:
             info("未连接到互联网，检测登录主页中......")
             login_address_connect = self.login_address_connect_status_test()
             while not login_address_connect:
-                # 登录地址无法连接，提示接入校园网
                 error('登录主页访问失败，请检查网络环境是否正确')
                 login_address_connect = self.login_address_connect_status_test()
                 time.sleep(10)
 
-        while self.login() is not True:
-            error('登录失败，请检查登录信息是否正确并重新输入')
-            self.account_input()
+        login_success = False
+        while not login_success:
+            self.drcom_logout()
+            time.sleep(1)
+            if self.login():
+                login_success = True
+            else:
+                error('登录失败，请检查登录信息是否正确并重新输入')
+                self.account_input()
 
         info('账号登录正常')
         if self.remember != 'use_last':
             self.remember_me()
-        # 更新
+        
         Updater.fetch()
 
         self.auto_login()

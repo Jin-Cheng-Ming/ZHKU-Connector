@@ -23,7 +23,7 @@ def fetch():
                                            private_key=private_key,
                                            installation_id=config['installation_id'])
         instance = Github(app_auth=authentication, timeout=6)
-        repo = instance.get_repo("Jin-Cheng-Ming/ZHKU-Connector")
+        repo = instance.get_repo("jared955/ZHKU-Connector")
         # 获取项目仓库:
         if repo.get_latest_release().tag_name > current_version:
             print('\r有可用的更新：{}'.format(repo.get_latest_release().tag_name))

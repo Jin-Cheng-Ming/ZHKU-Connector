@@ -15,11 +15,15 @@ def get_resource(relative_path: str):
     return os.path.join(base_path, relative_path)
 
 
+# 修改 remember_login 函数，保存 user_id 为字符串而非元组
 def remember_login(i_user: dict, i_setting: dict):
     """
     保存登录信息，包括用户ID和密码，还有登录的功能设置
     """
     try:
+        # 确保 user_id 是字符串
+        if 'user_id' in i_user and isinstance(i_user['user_id'], tuple):
+            i_user['user_id'] = i_user['user_id'][0]
         with open(network_credentials_file_path, 'wb') as f:
             pickle.dump({'login_info': i_user, 'setting_info': i_setting}, f)
             return True
