@@ -1,12 +1,73 @@
 current_version: 1.8.2
 last_update: 2024-12
 home_page: https://github.com/Jin-Cheng-Ming/ZHKU-Connector
-detect_captive_portal_url: http://www.gstatic.com/generate_204
+
+# ── 互联网探针（白云校区适配）──────────────────────────────
+# 任一探针返回 204 就说明"网络正常、没被劫持"。
+# 原来只有 gstatic 一个：国内访问不稳，一失败就被当成"需要登录"，
+# 于是反复发登录请求 —— 学校明令"检测到共享会冻结账号"，所以多备几个。
+detect_captive_portal_urls:
+  - http://connect.rom.miui.com/generate_204
+  - http://www.gstatic.com/generate_204
+  - http://www.msftconnecttest.com/connecttest.txt
+# 兼容原字段（代码里仍在读它）
+detect_captive_portal_url: http://connect.rom.miui.com/generate_204
+
+# ── 白云校区认证页 ────────────────────────────────────────
+# 白云的 portal 是石斧系统（与海珠同厂）：端口 8888、路径 /webauth.do 都一样，
+# 只是主机不同（海珠是 1.1.1.1，白云是运营商侧的 112.94.15.85）。
+# 注意：真正用来登录的地址是从"被劫持时的 302 Location"里自动取的，
+# 这里只是取不到跳转时的兜底值。
+# 白云校区真正的网络接入认证页（你浏览器里显示的实际地址）；
+# 112.94.15.85:8888 那个是运营商的宽带自助/缴费系统，不是认证页。
 login_page: http://1.1.1.1:8888/webauth.do?wlanacname=zax_hzoffice
+
+# 认证系统类型：
+#   form          = 表单 POST（海珠校区，默认）
+#   drcom_eportal = Dr.COM 城市热点 JSON 接口（白云校区；需把下面 drcom 段的 portal_ip 换成你校的）
+#   form         = 海珠那套（表单 POST + LOGINSUCC 标记）
+#   drcom_eportal = 白云这套（JSON 接口，实测于 2026-10）
+portal_type: form
+drcom:
+  portal_ip: 10.255.254.254
+  port: 801
+  login_path: /eportal/portal/login
+  js_version: 4.1.3
+
+# 密码输入方式：
+#   false（默认）= getpass 不回显 —— 敲密码时屏幕上一个字符都不显示，这是正常的。
+#   true         = 可见输入 —— 万一你的终端里 getpass 读不到键盘（打不了字），改成 true。
+password_echo: false
+
 log_level: info
 printable: False
+
+# 只跟更新检查有关（GitHub App），与学校无关
 app_id: 315799
 installation_id: 36277396
+
+# 连通性检测用的域名（提示/日志用）
 internet_host_list:
   - baidu.com
   - douyin.com
+
+# ── 登录表单字段 ──────────────────────────────────────────
+# 原来写死在 Connector.py 里。搬到配置后，换校区/换学校只改这一段。
+# 白云与海珠同为石斧系统，字段名应当一致；若登录报错，
+# 先跑 diagnose.py 把真实表单抓出来，再按它改这里。
+portal_fields:
+  auth_type: "0"
+  isBindMac1: "0"
+  pageid: "1"
+  templatetype: "1"
+  listbindmac: "0"
+  recordmac: "0"
+  isRemind: "0"
+  loginTimes: ""
+  groupId: ""
+  distoken: ""
+  echostr: ""
+  isautoauth: ""
+  # 这个图片路径是海珠的（hb_pay），白云可能是 by_*；只影响 portal 显示，不影响登录
+  notice_pic_float: "/portal/uploads/pc/hb_pay/images/rrs_bg.jpg"
+  remInfo: "on"

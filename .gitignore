@@ -1,5 +1,22 @@
-.idea
-build
-dist
-__pycache__
-venv
+# ── 敏感文件：绝对不要提交 ──────────────────────────────
+network_credentials.pkl
+*.pem
+zhku-connector.private-key.pem
+
+# ── 运行产物 ────────────────────────────────────────────
+logs/
+diagnose_out/
+__pycache__/
+*.py[cod]
+
+# ── 打包产物（建议改用 GitHub Releases 分发）────────────
+build/
+dist/
+*.spec
+
+# ── 编辑器 / 系统 ───────────────────────────────────────
+.idea/
+.vscode/
+venv/
+Thumbs.db
+desktop.ini

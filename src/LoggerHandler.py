@@ -2,6 +2,8 @@ import yaml  # 用于加载配置
 from Utils import get_resource, get_config  # 用于获取静态资源
 from abc import ABC, abstractmethod
 import datetime  # 用于记录当前时间
+import os  # 用于拼接日志路径
+import sys  # 用于判断是否为打包后的 exe
 from termcolor import cprint  # 用于使输出的字符附带颜色的样式
 
 config = get_config()
@@ -79,6 +81,41 @@ def get_log_level():
     return log_level
 
 
+# ── 文件日志（本地留证据，离线失败时用它排查）────────────────────
+_LOG_PATH = None
+
+
+def _log_path():
+    global _LOG_PATH
+    if _LOG_PATH is None:
+        try:
+            if getattr(sys, 'frozen', False):
+                # 打包成 exe 后 __file__ 在临时解压目录里，日志要跟着 exe 走
+                root = os.path.dirname(os.path.abspath(sys.executable))
+            else:
+                root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            d = os.path.join(root, 'logs')
+            os.makedirs(d, exist_ok=True)
+            _LOG_PATH = os.path.join(d, 'connector-{:%Y-%m-%d}.log'.format(datetime.datetime.now()))
+        except Exception:
+            _LOG_PATH = ''
+    return _LOG_PATH
+
+
+def _write_file(message: str, status: int):
+    if status < log_level:
+        return
+    path = _log_path()
+    if not path:
+        return
+    try:
+        ts = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+        with open(path, 'a', encoding='utf-8') as f:
+            f.write(f'[{ts}] {message}\n')
+    except Exception:
+        pass
+
+
 def log(message: str, status: int, printable: bool = True):
     """日志记录
 
@@ -87,6 +124,7 @@ def log(message: str, status: int, printable: bool = True):
     :param printable: 是否打印输出
     :return: 包含时间头的消息
     """
+    _write_file(message, status)
     logger = get_logger()
     if printable:
         logger.log_message(status, message)
